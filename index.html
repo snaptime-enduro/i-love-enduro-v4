@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I LOVE ENDURO #4 | ลงทะเบียน & สั่งจองเสื้อกิจกรรม</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- QR Code Generator & HTML2Canvas สำหรับเซฟ E-Ticket -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #0f1115; color: #f3f4f6; }
+    .racing-stripe {
+      background: repeating-linear-gradient(
+        -45deg,
+        #facc15,
+        #facc15 10px,
+        #18181b 10px,
+        #18181b 20px
+      );
+    }
+    .glass-card { background: #181b20; border: 1px solid #27272a; }
+    .btn-yellow { background: #facc15; color: #09090b; font-weight: 700; transition: all 0.2s; }
+    .btn-yellow:hover { background: #eab308; transform: translateY(-1px); }
+    .btn-yellow:disabled { background: #52525b; color: #a1a1aa; cursor: not-allowed; transform: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Racing Bar -->
+  <div class="racing-stripe h-2 w-full"></div>
+
+  <!-- Header Banner -->
+  <header class="bg-zinc-950 border-b border-zinc-800 py-6 px-4 text-center relative overflow-hidden">
+    <div class="max-w-3xl mx-auto">
+      <span class="inline-block bg-yellow-400 text-zinc-950 text-xs font-extrabold px-3 py-1 rounded-full tracking-wider uppercase mb-2">
+        26 - 27 ธันวาคม 2569 • บ้านธิ จ.ลำพูน
+      </span>
+      <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+        รวมพลคนรักเอ็นดูโร่ <span class="text-yellow-400">#4</span>
+      </h1>
+      <p class="text-zinc-400 text-sm md:text-base mt-1">
+        I LOVE ENDURO #4 • Off-Road Racing & Camping Festival
+      </p>
+      <div class="mt-3 inline-flex flex-wrap justify-center gap-2 text-xs text-zinc-300 bg-zinc-900/90 px-4 py-2 rounded-xl border border-zinc-800">
+        <span>📍 สนามพารามอเตอร์ Upper in the air</span>
+        <span class="hidden sm:inline">|</span>
+        <a href="https://maps.app.goo.gl/PxNR3NiXosew6esX8?g_st=ic" target="_blank" class="text-yellow-400 underline hover:text-yellow-300">เปิดแผนที่ Google Maps</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="sticky top-0 z-30 bg-zinc-900/95 backdrop-blur border-b border-zinc-800">
+    <div class="max-w-3xl mx-auto flex">
+      <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-3.5 text-center font-bold text-sm md:text-base border-b-2 border-yellow-400 text-yellow-400">
+        📝 สมัครเข้างาน / สั่งเสื้อ
+      </button>
+      <button onclick="switchTab('status')" id="tab-status" class="flex-1 py-3.5 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-zinc-400 hover:text-white">
+        🔍 ตรวจสอบรายชื่อ & E-Ticket
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6">
+
+    <!-- ==================== TAB 1: REGISTER & ORDER ==================== -->
+    <div id="view-register" class="space-y-6">
+
+      <!-- Notice Banner -->
+      <div class="bg-zinc-900/80 border-l-4 border-yellow-400 p-4 rounded-r-xl text-xs md:text-sm text-zinc-300 space-y-1">
+        <p class="font-bold text-yellow-400">📢 กติกาและเงื่อนไขการร่วมงาน:</p>
+        <p>• <strong>เข้างานอย่างเดียว (ไม่รับเสื้อ):</strong> ซื้อบัตรหน้างาน 200 บาท (เฉพาะผู้ชาย / ผู้หญิง เด็ก และผู้สูงอายุ เข้าฟรี!)</p>
+        <p>• <strong>ลงทะเบียนล่วงหน้า:</strong> เลือกได้ระหว่าง <u>รับหน้างาน (บัตร+เสื้อ)</u> หรือ <u>จัดส่งไปรษณีย์ (เฉพาะเสื้อ)</u></p>
+      </div>
+
+      <!-- Step 1: Select Mode -->
+      <section class="glass-card rounded-2xl p-5">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
+          <span class="bg-yellow-400 text-zinc-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-sm font-extrabold">1</span>
+          เลือกรูปแบบการสั่งซื้อ (เลือกอย่างใดอย่างหนึ่ง)
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Mode A: Pickup -->
+          <label class="cursor-pointer">
+            <input type="radio" name="orderMode" value="PICKUP" class="peer sr-only" checked onchange="handleModeChange()">
+            <div class="p-4 rounded-xl border-2 border-zinc-700 bg-zinc-900/60 peer-checked:border-yellow-400 peer-checked:bg-yellow-400/10 transition-all h-full">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-base text-white">🏁 บัตรเข้างาน + เสื้อกิจกรรม</span>
+                <span class="bg-yellow-400 text-zinc-950 text-xs font-extrabold px-2 py-0.5 rounded">500.- / ชุด</span>
+              </div>
+              <p class="text-xs text-zinc-400 mt-2">• ได้สิทธิ์เข้างาน + เสื้อแขนยาว I LOVE ENDURO 2026</p>
+              <p class="text-xs text-yellow-400 mt-1 font-medium">• รับเสื้อและริสต์แบนด์หน้างานเท่านั้น (ไม่มีค่าส่ง)</p>
+            </div>
+          </label>
+
+          <!-- Mode B: Shipping -->
+          <label class="cursor-pointer">
+            <input type="radio" name="orderMode" value="SHIPPING" class="peer sr-only" onchange="handleModeChange()">
+            <div class="p-4 rounded-xl border-2 border-zinc-700 bg-zinc-900/60 peer-checked:border-yellow-400 peer-checked:bg-yellow-400/10 transition-all h-full">
+              <div class="flex justify-between items-start">
+                <span class="font-bold text-base text-white">📦 ซื้อเสื้ออย่างเดียว (จัดส่งที่บ้าน)</span>
+                <span class="bg-zinc-700 text-white text-xs font-extrabold px-2 py-0.5 rounded">400.- / ตัว</span>
+              </div>
+              <p class="text-xs text-zinc-400 mt-2">• สำหรับผู้ที่ไม่สะดวกมาร่วมงาน แต่อยากเก็บเสื้อที่ระลึก</p>
+              <p class="text-xs text-zinc-300 mt-1">• ค่าจัดส่ง 50.- / บิล (พื้นที่ห่างไกล +50.-)</p>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Step 2: Select Shirt Sizes -->
+      <section class="glass-card rounded-2xl p-5">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="bg-yellow-400 text-zinc-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-sm font-extrabold">2</span>
+            เลือกไซส์และจำนวนเสื้อ
+          </h2>
+          <button type="button" onclick="toggleSizeChart()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-yellow-400 px-3 py-1.5 rounded-lg border border-zinc-700">
+            📏 ดูตารางไซส์เสื้อ
+          </button>
+        </div>
+
+        <!-- Collapsible Size Chart -->
+        <div id="sizeChartBox" class="hidden mb-4 p-3 bg-zinc-900 rounded-xl border border-zinc-700 text-xs">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="font-bold text-yellow-400 mb-1">👕 ตารางไซส์เด็ก (รอบอก / ยาว)</p>
+              <ul class="space-y-0.5 text-zinc-300">
+                <li>S เด็ก: 24" / 19"</li>
+                <li>M เด็ก: 26" / 20"</li>
+                <li>L เด็ก: 28" / 21"</li>
+                <li>XL เด็ก: 30" / 22"</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-bold text-yellow-400 mb-1">👕 ตารางไซส์ผู้ใหญ่ (รอบอก / ยาว)</p>
+              <ul class="space-y-0.5 text-zinc-300">
+                <li>4S: 32"/23" | 3S: 34"/24" | 2S: 36"/25"</li>
+                <li>S: 38"/26" | M: 40"/27" | L: 42"/28"</li>
+                <li>XL: 44"/29" | 2XL: 46"/30"</li>
+                <li class="text-amber-300">3XL: 48"/30" | 4XL: 50"/30" (+50.-)</li>
+                <li class="text-rose-300">5XL-9XL: 52"-60" (+100.-)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Size Controls -->
+        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+          <select id="sizeSelect" class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
+            <optgroup label="--- ไซส์ผู้ใหญ่ (ราคาปกติ) ---">
+              <option value="S">S (รอบอก 38" / ยาว 26")</option>
+              <option value="M">M (รอบอก 40" / ยาว 27")</option>
+              <option value="L" selected>L (รอบอก 42" / ยาว 28")</option>
+              <option value="XL">XL (รอบอก 44" / ยาว 29")</option>
+              <option value="2XL">2XL (รอบอก 46" / ยาว 30")</option>
+              <option value="2S">2S (รอบอก 36" / ยาว 25")</option>
+              <option value="3S">3S (รอบอก 34" / ยาว 24")</option>
+              <option value="4S">4S (รอบอก 32" / ยาว 23")</option>
+            </optgroup>
+            <optgroup label="--- ไซส์ใหญ่พิเศษ (+50 บาท) ---">
+              <option value="3XL">3XL (รอบอก 48" / ยาว 30") [+50.-]</option>
+              <option value="4XL">4XL (รอบอก 50" / ยาว 30") [+50.-]</option>
+            </optgroup>
+            <optgroup label="--- ไซส์ใหญ่พิเศษ (+100 บาท) ---">
+              <option value="5XL">5XL (รอบอก 52" / ยาว 30") [+100.-]</option>
+              <option value="6XL">6XL (รอบอก 54" / ยาว 31") [+100.-]</option>
+              <option value="7XL">7XL (รอบอก 56" / ยาว 31") [+100.-]</option>
+              <option value="8XL">8XL (รอบอก 58" / ยาว 31") [+100.-]</option>
+              <option value="9XL">9XL (รอบอก 60" / ยาว 31") [+100.-]</option>
+            </optgroup>
+            <optgroup label="--- ไซส์เด็ก (ราคาปกติ) ---">
+              <option value="S เด็ก">S เด็ก (รอบอก 24" / ยาว 19")</option>
+              <option value="M เด็ก">M เด็ก (รอบอก 26" / ยาว 20")</option>
+              <option value="L เด็ก">L เด็ก (รอบอก 28" / ยาว 21")</option>
+              <option value="XL เด็ก">XL เด็ก (รอบอก 30" / ยาว 22")</option>
+            </optgroup>
+          </select>
+
+          <div class="flex gap-2">
+            <input type="number" id="qtyInput" value="1" min="1" max="50" class="w-20 bg-zinc-900 border border-zinc-700 text-white text-center rounded-xl px-2 py-2.5 text-sm">
+            <button type="button" onclick="addToCart()" class="btn-yellow px-5 py-2.5 rounded-xl text-sm whitespace-nowrap">
+              + เพิ่มลงรายการ
+            </button>
+          </div>
+        </div>
+
+        <!-- Cart List -->
+        <div id="cartContainer" class="space-y-2">
+          <!-- Render items here -->
+        </div>
+      </section>
+
+      <!-- Step 3: Customer Info -->
+      <section class="glass-card rounded-2xl p-5 space-y-4">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <span class="bg-yellow-400 text-zinc-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-sm font-extrabold">3</span>
+          ข้อมูลผู้สมัคร / ผู้รับสินค้า
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1">ชื่อ - นามสกุล (หรือชื่อทีม) <span class="text-rose-500">*</span></label>
+            <input type="text" id="customerName" placeholder="เช่น สมชาย สายลุย" class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
+          </div>
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1">เบอร์โทรศัพท์ (ใช้ค้นหาบิลและ E-Ticket) <span class="text-rose-500">*</span></label>
+            <input type="tel" id="customerPhone" maxlength="10" placeholder="08XXXXXXXX" class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
+          </div>
+        </div>
+
+        <!-- Shipping Address Box (Hidden when PICKUP) -->
+        <div id="shippingFields" class="hidden space-y-3 pt-2 border-t border-zinc-800">
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1">ที่อยู่จัดส่งพัสดุ (บ้านเลขที่ / หมู่ / ตำบล / อำเภอ / จังหวัด) <span class="text-rose-500">*</span></label>
+            <textarea id="shippingAddress" rows="2" placeholder="ระบุที่อยู่ให้ครบถ้วน..." class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400"></textarea>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1">รหัสไปรษณีย์ (5 หลัก) <span class="text-rose-500">*</span></label>
+              <input type="text" id="zipcodeInput" maxlength="5" placeholder="เช่น 51130" oninput="recalculateTotal()" class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
+            </div>
+            <div id="remoteBadge" class="text-xs text-zinc-400 pt-4">
+              ค่าจัดส่งมาตรฐาน 50 บาท
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Summary & Payment -->
+      <section class="glass-card rounded-2xl p-5 space-y-5">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <span class="bg-yellow-400 text-zinc-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-sm font-extrabold">4</span>
+          สรุปยอดชำระเงินและแนบสลิป
+        </h2>
+
+        <!-- Price Breakdown -->
+        <div class="bg-zinc-900 rounded-xl p-4 border border-zinc-800 space-y-2 text-sm">
+          <div class="flex justify-between text-zinc-400">
+            <span>ค่าเสื้อ/แพ็กเกจ (<span id="sumQty">0</span> รายการ)</span>
+            <span><span id="sumSubtotal">0</span> บาท</span>
+          </div>
+          <div class="flex justify-between text-zinc-400" id="shippingRow">
+            <span>ค่าจัดส่งพัสดุ</span>
+            <span><span id="sumShipping">0</span> บาท</span>
+          </div>
+          <div class="border-t border-zinc-800 pt-2 flex justify-between items-center text-base font-bold">
+            <span class="text-white">ยอดโอนสุทธิ</span>
+            <span class="text-2xl text-yellow-400"><span id="sumGrandTotal">0</span> บาท</span>
+          </div>
+        </div>
+
+        <!-- Bank & PromptPay QR -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
+          <div class="flex flex-col items-center bg-white p-3 rounded-xl">
+            <div class="text-xs font-bold text-blue-900 mb-1">สแกน QR พร้อมเพย์ (ระบุยอดให้อัตโนมัติ)</div>
+            <div id="promptpayQR" class="my-1"></div>
+            <div class="text-[11px] text-zinc-600 mt-1">พร้อมเพย์: 089-563-0486</div>
+          </div>
+
+          <div class="space-y-2 text-sm">
+            <div class="inline-block bg-purple-700 text-white text-xs font-bold px-2.5 py-1 rounded">ธนาคารไทยพาณิชย์ (SCB)</div>
+            <p class="text-zinc-400 text-xs">เลขที่บัญชี</p>
+            <div class="flex items-center gap-2">
+              <span class="text-xl font-extrabold text-white tracking-wider">403-487702-5</span>
+              <button type="button" onclick="copyAcc()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-yellow-400 px-2.5 py-1 rounded-lg border border-zinc-700">คัดลอก</button>
+            </div>
+            <p class="text-zinc-300">ชื่อบัญชี: <strong>นายคมสัน วุฒศรี</strong></p>
+            <p class="text-xs text-zinc-400 pt-1">📞 โทรประสานงาน: <a href="tel:0895630486" class="text-yellow-400">089-563-0486</a></p>
+          </div>
+        </div>
+
+        <!-- Slip Upload -->
+        <div>
+          <label class="block text-xs text-zinc-300 font-medium mb-2">อัปโหลดหลักฐานการโอนเงิน (สลิป) <span class="text-rose-500">*</span></label>
+          <input type="file" id="slipFile" accept="image/*" onchange="previewSlip(event)" class="block w-full text-sm text-zinc-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-yellow-400 file:text-zinc-950 hover:file:bg-yellow-300 cursor-pointer bg-zinc-900 rounded-xl border border-zinc-700">
+          <div id="slipPreviewBox" class="hidden mt-3 flex justify-center">
+            <img id="slipPreviewImg" class="max-h-60 rounded-xl border border-zinc-700" alt="ตัวอย่างสลิป">
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="button" id="submitBtn" onclick="submitOrder()" class="w-full btn-yellow py-3.5 rounded-xl text-base shadow-lg shadow-yellow-400/10">
+          ✅ ยืนยันการสมัครและส่งสลิป
+        </button>
+      </section>
+    </div>
+
+    <!-- ==================== TAB 2: CHECK STATUS & PUBLIC LIST ==================== -->
+    <div id="view-status" class="hidden space-y-6">
+
+      <!-- Search by Phone Box -->
+      <section class="glass-card rounded-2xl p-5">
+        <h2 class="text-lg font-bold text-white mb-2">🎫 ค้นหาบิลของฉัน & ดาวน์โหลด E-Ticket</h2>
+        <p class="text-xs text-zinc-400 mb-3">กรอกเบอร์โทรศัพท์ที่ใช้สมัคร เพื่อตรวจสอบสถานะการโอนเงิน เลขพัสดุ หรือเปิดบัตร E-Ticket</p>
+        <div class="flex gap-2">
+          <input type="tel" id="searchPhoneInput" maxlength="10" placeholder="กรอกเบอร์โทร 10 หลัก เช่น 0812345678" class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
+          <button type="button" onclick="searchMyOrder()" class="btn-yellow px-6 py-2.5 rounded-xl text-sm">ค้นหา</button>
+        </div>
+        <div id="mySearchResults" class="mt-4 space-y-3"></div>
+      </section>
+
+      <!-- Public Roster Table -->
+      <section class="glass-card rounded-2xl p-5">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">📋 รายชื่อผู้ลงทะเบียน & สั่งจองเสื้อ</h2>
+            <p class="text-xs text-zinc-400">แสดงเฉพาะชื่อและไซส์เสื้อ (ปกปิดเบอร์โทรและที่อยู่เพื่อความเป็นส่วนตัว)</p>
+          </div>
+          <button type="button" onclick="loadPublicList()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-1.5 rounded-lg border border-zinc-700">🔄 รีเฟรช</button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-zinc-700 text-zinc-400 text-xs">
+                <th class="py-2.5 px-2">รหัสบิล</th>
+                <th class="py-2.5 px-2">ชื่อผู้สมัคร</th>
+                <th class="py-2.5 px-2">รายการไซส์เสื้อ</th>
+                <th class="py-2.5 px-2 text-right">สถานะ</th>
+              </tr>
+            </thead>
+            <tbody id="publicTableBody" class="divide-y divide-zinc-800">
+              <tr><td colspan="4" class="py-6 text-center text-zinc-500">กำลังโหลดรายชื่อ...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- ==================== E-TICKET MODAL ==================== -->
+  <div id="ticketModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-sm w-full space-y-3">
+      <!-- Capture Area -->
+      <div id="ticketCard" class="bg-zinc-950 border-2 border-yellow-400 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="racing-stripe h-2"></div>
+        <div class="p-5 text-center bg-gradient-to-b from-zinc-900 to-zinc-950">
+          <span class="bg-yellow-400 text-zinc-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">OFFICIAL E-TICKET</span>
+          <h3 class="text-xl font-extrabold text-white mt-1">I LOVE ENDURO <span class="text-yellow-400">#4</span></h3>
+          <p class="text-[11px] text-zinc-400">26-27 ธ.ค. 2569 • บ้านธิ จ.ลำพูน</p>
+
+          <div class="my-4 bg-white p-3 rounded-xl inline-block">
+            <div id="ticketQR"></div>
+          </div>
+
+          <div class="text-2xl font-black text-yellow-400 tracking-wider" id="tkOrderId">ILE4-0000</div>
+          <div class="text-xs text-zinc-400 mt-0.5" id="tkType">รับหน้างาน (บัตร+เสื้อ)</div>
+
+          <div class="mt-4 pt-3 border-t border-dashed border-zinc-700 text-left space-y-1.5 text-xs">
+            <div class="flex justify-between">
+              <span class="text-zinc-400">ชื่อผู้สมัคร:</span>
+              <span class="font-bold text-white" id="tkName">-</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-zinc-400">รายการเสื้อ:</span>
+              <span class="font-bold text-yellow-400" id="tkItems">-</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-zinc-400">ยอดชำระ:</span>
+              <span class="font-bold text-white" id="tkTotal">-</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-zinc-400">สถานะ:</span>
+              <span class="font-bold text-amber-400" id="tkStatus">รอตรวจสอบ</span>
+            </div>
+          </div>
+        </div>
+        <div class="bg-yellow-400 text-zinc-950 text-[11px] font-bold text-center py-2 px-3">
+          แสดงบัตรนี้ที่จุดลงทะเบียนหน้างานเพื่อรับเสื้อและริสต์แบนด์
+        </div>
+      </div>
+
+      <!-- Modal Buttons -->
+      <div class="flex gap-2">
+        <button type="button" onclick="downloadTicketImage()" class="flex-1 btn-yellow py-3 rounded-xl text-sm">
+          💾 บันทึกรูปบัตร E-Ticket
+        </button>
+        <button type="button" onclick="closeTicketModal()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-3 rounded-xl text-sm font-bold">
+          ปิด
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center text-xs text-zinc-600 py-6 border-t border-zinc-900">
+    ระบบรับสมัครและจัดการแข่งขันโดย <span class="text-zinc-400 font-semibold">SnapTime</span> • I LOVE ENDURO #4
+  </footer>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxX5YpKcQoXCBpDMiaOELwySO4zDr0UCDReh7fpsdUSdSGnujn-A_vcjPhvWZy3kmlWaA/exec';
+    const PROMPTPAY_ID = '0895630486';
+
+    let cart = [{ size: 'L', qty: 1 }];
+    let remoteZipcodes = [];
+    let compressedSlipBase64 = '';
+
+    // โหลดข้อมูลเริ่มต้น
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCart();
+      fetchRemoteZipcodes();
+    });
+
+    async function fetchRemoteZipcodes() {
+      try {
+        const res = await fetch(`${API_URL}?action=getRemoteAreas`);
+        const json = await res.json();
+        if (json.status === 'success') remoteZipcodes = json.data || [];
+      } catch (e) { console.error('Load remote areas error', e); }
+    }
+
+    function switchTab(tab) {
+      document.getElementById('view-register').classList.toggle('hidden', tab !== 'register');
+      document.getElementById('view-status').classList.toggle('hidden', tab !== 'status');
+
+      document.getElementById('tab-register').className = tab === 'register'
+        ? 'flex-1 py-3.5 text-center font-bold text-sm md:text-base border-b-2 border-yellow-400 text-yellow-400'
+        : 'flex-1 py-3.5 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-zinc-400 hover:text-white';
+
+      document.getElementById('tab-status').className = tab === 'status'
+        ? 'flex-1 py-3.5 text-center font-bold text-sm md:text-base border-b-2 border-yellow-400 text-yellow-400'
+        : 'flex-1 py-3.5 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-zinc-400 hover:text-white';
+
+      if (tab === 'status') loadPublicList();
+    }
+
+    function toggleSizeChart() {
+      document.getElementById('sizeChartBox').classList.toggle('hidden');
+    }
+
+    function getOrderMode() {
+      return document.querySelector('input[name="orderMode"]:checked').value;
+    }
+
+    function handleModeChange() {
+      const isShipping = getOrderMode() === 'SHIPPING';
+      document.getElementById('shippingFields').classList.toggle('hidden', !isShipping);
+      renderCart();
+    }
+
+    function getSizeExtra(size) {
+      if (['3XL', '4XL'].includes(size)) return 50;
+      if (['5XL', '6XL', '7XL', '8XL', '9XL'].includes(size)) return 100;
+      return 0;
+    }
+
+    function addToCart() {
+      const size = document.getElementById('sizeSelect').value;
+      const qty = parseInt(document.getElementById('qtyInput').value) || 1;
+      if (qty < 1) return;
+
+      const existing = cart.find(item => item.size === size);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        cart.push({ size, qty });
+      }
+      document.getElementById('qtyInput').value = 1;
+      renderCart();
+    }
+
+    function updateQty(index, delta) {
+      cart[index].qty += delta;
+      if (cart[index].qty <= 0) cart.splice(index, 1);
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartContainer');
+      const basePrice = getOrderMode() === 'PICKUP' ? 500 : 400;
+
+      if (cart.length === 0) {
+        container.innerHTML = `<div class="text-center py-4 text-xs text-zinc-500 border border-dashed border-zinc-700 rounded-xl">ยังไม่มีรายการเสื้อ กรุณาเลือกไซส์ด้านบน</div>`;
+        recalculateTotal();
+        return;
+      }
+
+      container.innerHTML = cart.map((item, idx) => {
+        const extra = getSizeExtra(item.size);
+        const unitPrice = basePrice + extra;
+        const lineTotal = unitPrice * item.qty;
+        return `
+          <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 px-3.5 py-2.5 rounded-xl">
+            <div>
+              <span class="font-bold text-white text-sm">ไซส์ ${item.size}</span>
+              <span class="text-xs text-zinc-400 ml-2">(${unitPrice} บาท/ตัว)</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center bg-zinc-800 rounded-lg">
+                <button type="button" onclick="updateQty(${idx}, -1)" class="w-7 h-7 text-zinc-300 hover:text-white font-bold">-</button>
+                <span class="w-7 text-center text-sm font-bold text-white">${item.qty}</span>
+                <button type="button" onclick="updateQty(${idx}, 1)" class="w-7 h-7 text-zinc-300 hover:text-white font-bold">+</button>
+              </div>
+              <span class="w-16 text-right font-bold text-yellow-400 text-sm">${lineTotal.toLocaleString()}.-</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      recalculateTotal();
+    }
+
+    function recalculateTotal() {
+      const isShipping = getOrderMode() === 'SHIPPING';
+      const basePrice = isShipping ? 400 : 500;
+      let subtotal = 0;
+      let totalQty = 0;
+
+      cart.forEach(item => {
+        const unit = basePrice + getSizeExtra(item.size);
+        subtotal += unit * item.qty;
+        totalQty += item.qty;
+      });
+
+      let shippingFee = 0;
+      const remoteBadge = document.getElementById('remoteBadge');
+
+      if (isShipping && totalQty > 0) {
+        const zip = document.getElementById('zipcodeInput').value.trim();
+        const isRemote = zip.length === 5 && remoteZipcodes.includes(zip);
+        shippingFee = isRemote ? 100 : 50;
+        remoteBadge.innerHTML = isRemote
+          ? `<span class="text-amber-400 font-bold">⚠️ พื้นที่ห่างไกล ค่าจัดส่ง 100 บาท (50+50)</span>`
+          : `<span class="text-emerald-400">✓ ค่าจัดส่งมาตรฐาน 50 บาท</span>`;
+      }
+
+      const grandTotal = subtotal + shippingFee;
+
+      document.getElementById('sumQty').innerText = totalQty;
+      document.getElementById('sumSubtotal').innerText = subtotal.toLocaleString();
+      document.getElementById('shippingRow').classList.toggle('hidden', !isShipping);
+      document.getElementById('sumShipping').innerText = shippingFee.toLocaleString();
+      document.getElementById('sumGrandTotal').innerText = grandTotal.toLocaleString();
+
+      generatePromptPayQR(grandTotal);
+    }
+
+    // สร้าง PromptPay QR Payload (EMVCo Standard)
+    function generatePromptPayQR(amount) {
+      const qrBox = document.getElementById('promptpayQR');
+      qrBox.innerHTML = '';
+      const payload = buildPromptPayPayload(PROMPTPAY_ID, amount);
+      new QRCode(qrBox, { text: payload, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M });
+    }
+
+    function buildPromptPayPayload(mobile, amount) {
+      const target = '0066' + mobile.replace(/^0/, '');
+      const f00 = '000201';
+      const f01 = amount > 0 ? '010212' : '010211';
+      const merchantInfo = `0016A0000006770101110113${target}`;
+      const f29 = `29${String(merchantInfo.length).padStart(2, '0')}${merchantInfo}`;
+      const f53 = '5303764';
+      const amtStr = Number(amount).toFixed(2);
+      const f54 = amount > 0 ? `54${String(amtStr.length).padStart(2, '0')}${amtStr}` : '';
+      const f58 = '5802TH';
+      const raw = `${f00}${f01}${f29}${f53}${f54}${f58}6304`;
+      return raw + crc16(raw);
+    }
+
+    function crc16(str) {
+      let crc = 0xFFFF;
+      for (let i = 0; i < str.length; i++) {
+        crc ^= str.charCodeAt(i) << 8;
+        for (let j = 0; j < 8; j++) {
+          crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        }
+      }
+      return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    }
+
+    function copyAcc() {
+      navigator.clipboard.writeText('4034877025');
+      alert('คัดลอกเลขบัญชี 4034877025 (SCB นายคมสัน วุฒศรี) เรียบร้อยแล้ว');
+    }
+
+    // บีบอัดรูปสลิปก่อนอัปโหลด
+    function previewSlip(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 900;
+          let width = img.width;
+          let height = img.height;
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          compressedSlipBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+          document.getElementById('slipPreviewImg').src = compressedSlipBase64;
+          document.getElementById('slipPreviewBox').classList.remove('hidden');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function submitOrder() {
+      if (cart.length === 0) return alert('กรุณาเลือกไซส์เสื้ออย่างน้อย 1 รายการ');
+
+      const orderType = getOrderMode();
+      const customerName = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('customerPhone').value.replace(/\D/g, '');
+      const shippingAddress = document.getElementById('shippingAddress').value.trim();
+      const zipcode = document.getElementById('zipcodeInput').value.trim();
+
+      if (!customerName) return alert('กรุณากรอกชื่อ - นามสกุล');
+      if (phone.length < 9) return alert('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง');
+      if (orderType === 'SHIPPING') {
+        if (!shippingAddress) return alert('กรุณากรอกที่อยู่สำหรับจัดส่งพัสดุ');
+        if (zipcode.length !== 5) return alert('กรุณากรอกรหัสไปรษณีย์ 5 หลัก');
+      }
+      if (!compressedSlipBase64) return alert('กรุณาแนบสลิปหลักฐานการโอนเงิน');
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerText = '⏳ กำลังบันทึกข้อมูลและอัปโหลดสลิป...';
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'createOrder',
+            orderType,
+            customerName,
+            phone,
+            shippingAddress,
+            zipcode,
+            items: cart,
+            slipBase64: compressedSlipBase64,
+            slipMimeType: 'image/jpeg'
+          })
+        });
+
+        const result = await res.json();
+        if (result.status === 'success') {
+          showTicketModal(result.order);
+          // รีเซ็ตฟอร์ม
+          cart = [{ size: 'L', qty: 1 }];
+          renderCart();
+          document.getElementById('slipFile').value = '';
+          document.getElementById('slipPreviewBox').classList.add('hidden');
+          compressedSlipBase64 = '';
+        } else {
+          alert('เกิดข้อผิดพลาด: ' + result.message);
+        }
+      } catch (err) {
+        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง');
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '✅ ยืนยันการสมัครและส่งสลิป';
+      }
+    }
+
+    // แสดง E-Ticket
+    function showTicketModal(order) {
+      document.getElementById('tkOrderId').innerText = order.orderId;
+      document.getElementById('tkType').innerText = order.orderType;
+      document.getElementById('tkName').innerText = order.customerName;
+      document.getElementById('tkItems').innerText = order.itemsSummary;
+      document.getElementById('tkTotal').innerText = Number(order.grandTotal).toLocaleString() + ' บาท';
+      document.getElementById('tkStatus').innerText = order.status;
+
+      const qrContainer = document.getElementById('ticketQR');
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, { text: order.orderId, width: 130, height: 130 });
+
+      document.getElementById('ticketModal').classList.remove('hidden');
+    }
+
+    function closeTicketModal() {
+      document.getElementById('ticketModal').classList.add('hidden');
+    }
+
+    function downloadTicketImage() {
+      const card = document.getElementById('ticketCard');
+      const orderId = document.getElementById('tkOrderId').innerText;
+      html2canvas(card, { scale: 2, backgroundColor: '#09090b' }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `ETicket_${orderId}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    // ค้นหาด้วยเบอร์โทร
+    async function searchMyOrder() {
+      const phone = document.getElementById('searchPhoneInput').value.replace(/\D/g, '');
+      if (phone.length < 9) return alert('กรุณากรอกเบอร์โทรศัพท์ 9-10 หลัก');
+
+      const box = document.getElementById('mySearchResults');
+      box.innerHTML = `<p class="text-xs text-zinc-400">กำลังค้นหาข้อมูล...</p>`;
+
+      try {
+        const res = await fetch(`${API_URL}?action=searchByPhone&phone=${phone}`);
+        const json = await res.json();
+        const list = json.data || [];
+
+        if (list.length === 0) {
+          box.innerHTML = `<div class="p-4 bg-zinc-900 rounded-xl text-center text-xs text-rose-400">ไม่พบข้อมูลการสมัครของเบอร์โทรนี้</div>`;
+          return;
+        }
+
+        box.innerHTML = list.map(o => `
+          <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-4 space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="font-extrabold text-yellow-400 text-sm">${o.orderId}</span>
+              <span class="px-2 py-0.5 rounded font-bold ${o.status === 'อนุมัติแล้ว' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${o.status}</span>
+            </div>
+            <p class="text-white font-semibold">${o.customerName} <span class="text-zinc-400 font-normal">(${o.orderType})</span></p>
+            <p class="text-zinc-300">รายการ: <strong>${o.itemsSummary}</strong> (ยอด ${Number(o.grandTotal).toLocaleString()}.-)</p>
+            ${o.trackingNo ? `<p class="text-emerald-400 font-bold">🚚 เลขพัสดุ: ${o.trackingNo}</p>` : ''}
+            ${o.adminNote ? `<p class="text-rose-400">หมายเหตุ: ${o.adminNote}</p>` : ''}
+            <button type="button" onclick='showTicketModal(${JSON.stringify(o)})' class="w-full mt-2 bg-zinc-800 hover:bg-zinc-700 text-yellow-400 py-2 rounded-lg font-bold border border-zinc-700">
+              🎫 เปิดดู / เซฟบัตร E-Ticket
+            </button>
+          </div>
+        `).join('');
+      } catch (e) {
+        box.innerHTML = `<p class="text-xs text-rose-400">เกิดข้อผิดพลาดในการค้นหา</p>`;
+      }
+    }
+
+    // โหลดรายชื่อสาธารณะ
+    async function loadPublicList() {
+      const tbody = document.getElementById('publicTableBody');
+      tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-zinc-500">กำลังโหลดข้อมูล...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API_URL}?action=getPublicList`);
+        const json = await res.json();
+        const list = json.data || [];
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-zinc-500">ยังไม่มีผู้ลงทะเบียน</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(row => `
+          <tr class="hover:bg-zinc-900/60">
+            <td class="py-3 px-2 font-mono text-xs text-yellow-400 font-bold">${row.orderId}</td>
+            <td class="py-3 px-2 text-white font-medium">${row.customerName}</td>
+            <td class="py-3 px-2 text-zinc-300 text-xs">${row.itemsSummary}</td>
+            <td class="py-3 px-2 text-right">
+              <span class="text-[11px] px-2 py-0.5 rounded-full font-semibold ${row.status === 'อนุมัติแล้ว' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">
+                ${row.status}
+              </span>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-rose-400">โหลดรายชื่อไม่สำเร็จ</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>
