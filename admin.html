@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADMIN | I LOVE ENDURO #4 Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- HTML5-QRCode สำหรับสแกน E-Ticket หน้างาน -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #09090b; color: #f4f4f5; }
+    .glass-card { background: #18181b; border: 1px solid #27272a; }
+    .btn-yellow { background: #facc15; color: #09090b; font-weight: 700; transition: all 0.15s; }
+    .btn-yellow:hover { background: #eab308; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ==================== LOGIN SCREEN ==================== -->
+  <div id="loginScreen" class="flex-1 flex items-center justify-center p-4">
+    <div class="glass-card max-w-sm w-full p-6 rounded-2xl text-center space-y-4 shadow-2xl">
+      <div class="inline-block bg-yellow-400 text-zinc-950 text-xs font-extrabold px-3 py-1 rounded-full">
+        ADMIN & STAFF PORTAL
+      </div>
+      <h1 class="text-2xl font-extrabold text-white">I LOVE ENDURO <span class="text-yellow-400">#4</span></h1>
+      <p class="text-xs text-zinc-400">กรอกรหัสผ่านผู้ดูแลระบบ (PIN) เพื่อเข้าจัดการข้อมูล</p>
+
+      <input type="password" id="pinInput" maxlength="10" placeholder="••••" onkeydown="if(event.key==='Enter') handleLogin()"
+        class="w-full bg-zinc-900 border border-zinc-700 text-center text-2xl tracking-widest text-yellow-400 font-bold rounded-xl py-3 focus:outline-none focus:border-yellow-400">
+
+      <button type="button" id="loginBtn" onclick="handleLogin()" class="w-full btn-yellow py-3 rounded-xl text-sm">
+        🔓 เข้าสู่ระบบหลังบ้าน
+      </button>
+      <p id="loginError" class="text-xs text-rose-400 hidden"></p>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN DASHBOARD ==================== -->
+  <div id="dashboardScreen" class="hidden flex-1 flex flex-col">
+
+    <!-- Top Bar -->
+    <header class="bg-zinc-950 border-b border-zinc-800 px-4 py-3.5 sticky top-0 z-30">
+      <div class="max-w-5xl mx-auto flex justify-between items-center">
+        <div>
+          <h1 class="text-lg font-extrabold text-white">🏁 ADMIN • <span class="text-yellow-400">I LOVE ENDURO #4</span></h1>
+          <p class="text-[11px] text-zinc-400">ระบบตรวจสลิป จัดส่งพัสดุ และสแกนแจกเสื้อหน้างาน</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="fetchAdminOrders()" class="bg-zinc-800 hover:bg-zinc-700 text-yellow-400 text-xs font-bold px-3 py-2 rounded-lg border border-zinc-700">
+            🔄 รีเฟรช
+          </button>
+          <button onclick="logout()" class="bg-zinc-900 hover:bg-rose-950 text-zinc-400 hover:text-rose-400 text-xs px-3 py-2 rounded-lg border border-zinc-800">
+            ออก
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Summary Stats -->
+    <section class="max-w-5xl w-full mx-auto px-4 pt-5">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="glass-card p-3.5 rounded-xl">
+          <p class="text-xs text-zinc-400">บิลทั้งหมด</p>
+          <p class="text-2xl font-extrabold text-white mt-0.5" id="statTotal">0</p>
+        </div>
+        <div class="glass-card p-3.5 rounded-xl border-amber-500/40">
+          <p class="text-xs text-amber-400">⏳ รอตรวจสอบสลิป</p>
+          <p class="text-2xl font-extrabold text-amber-400 mt-0.5" id="statPending">0</p>
+        </div>
+        <div class="glass-card p-3.5 rounded-xl border-emerald-500/40">
+          <p class="text-xs text-emerald-400">✅ อนุมัติแล้ว (ตัวเสื้อ)</p>
+          <p class="text-2xl font-extrabold text-emerald-400 mt-0.5"><span id="statApproved">0</span> <span class="text-xs font-normal text-zinc-400">(<span id="statShirts">0</span> ตัว)</span></p>
+        </div>
+        <div class="glass-card p-3.5 rounded-xl">
+          <p class="text-xs text-zinc-400">💰 ยอดโอนอนุมัติแล้ว</p>
+          <p class="text-2xl font-extrabold text-yellow-400 mt-0.5"><span id="statRevenue">0</span>.-</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-5xl w-full mx-auto px-4 mt-5">
+      <div class="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+        <button onclick="switchAdminTab('orders')" id="atab-orders" class="flex-1 py-2.5 rounded-lg text-xs md:text-sm font-bold bg-yellow-400 text-zinc-950">
+          📋 รายการสั่งซื้อ & ตรวจสลิป
+        </button>
+        <button onclick="switchAdminTab('scanner')" id="atab-scanner" class="flex-1 py-2.5 rounded-lg text-xs md:text-sm font-bold text-zinc-400 hover:text-white">
+          📷 สแกน QR รับเสื้อหน้างาน
+        </button>
+      </div>
+    </nav>
+
+    <!-- ==================== TAB 1: ORDERS LIST ==================== -->
+    <main id="aview-orders" class="max-w-5xl w-full mx-auto px-4 py-5 space-y-4">
+
+      <!-- Filters & Search -->
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input type="text" id="adminSearch" oninput="renderOrders()" placeholder="🔍 ค้นหา รหัสบิล / ชื่อ / เบอร์โทร..."
+          class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-yellow-400">
+        <select id="statusFilter" onchange="renderOrders()" class="bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-yellow-400">
+          <option value="ALL">สถานะทั้งหมด</option>
+          <option value="รอตรวจสอบ" selected>⏳ เฉพาะรอตรวจสอบ</option>
+          <option value="อนุมัติแล้ว">✅ อนุมัติแล้ว</option>
+          <option value="SHIPPING">📦 เฉพาะจัดส่งพัสดุ</option>
+          <option value="PICKUP">🏁 เฉพาะรับหน้างาน</option>
+          <option value="ยกเลิก">❌ ยกเลิก</option>
+        </select>
+      </div>
+
+      <!-- Orders Container -->
+      <div id="ordersListContainer" class="space-y-3">
+        <div class="text-center py-10 text-zinc-500 text-sm">กำลังโหลดข้อมูล...</div>
+      </div>
+    </main>
+
+    <!-- ==================== TAB 2: QR SCANNER FOR PICKUP ==================== -->
+    <main id="aview-scanner" class="hidden max-w-xl w-full mx-auto px-4 py-5 space-y-4">
+      <div class="glass-card p-5 rounded-2xl text-center space-y-4">
+        <h2 class="text-lg font-bold text-white">📷 สแกน QR Code บัตร E-Ticket</h2>
+        <p class="text-xs text-zinc-400">ส่องกล้องไปที่ QR Code บนมือถือผู้สมัคร หรือพิมพ์รหัสบิลด้านล่าง</p>
+
+        <div class="flex justify-center gap-2">
+          <button type="button" id="startCamBtn" onclick="startScanner()" class="btn-yellow px-4 py-2 rounded-xl text-xs">
+            เปิดกล้องสแกน
+          </button>
+          <button type="button" id="stopCamBtn" onclick="stopScanner()" class="hidden bg-rose-600 text-white font-bold px-4 py-2 rounded-xl text-xs">
+            ปิดกล้อง
+          </button>
+        </div>
+
+        <div id="qrReader" class="w-full rounded-xl overflow-hidden bg-black"></div>
+
+        <!-- Manual Lookup -->
+        <div class="pt-3 border-t border-zinc-800 flex gap-2">
+          <input type="text" id="manualCodeInput" placeholder="พิมพ์รหัสบิล (เช่น ILE4-0001) หรือเบอร์โทร"
+            class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2 text-sm uppercase">
+          <button type="button" onclick="lookupForPickup()" class="bg-zinc-800 hover:bg-zinc-700 text-yellow-400 font-bold px-4 py-2 rounded-xl text-xs border border-zinc-700">
+            ตรวจสอบ
+          </button>
+        </div>
+      </div>
+
+      <!-- Scan Result Card -->
+      <div id="pickupResultBox"></div>
+    </main>
+
+  </div>
+
+  <!-- ==================== SLIP IMAGE MODAL ==================== -->
+  <div id="slipModal" onclick="closeSlipModal()" class="fixed inset-0 z-50 hidden bg-black/90 flex items-center justify-center p-4">
+    <div class="max-w-md w-full space-y-3" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center text-white">
+        <span class="font-bold text-sm" id="slipModalTitle">หลักฐานการโอนเงิน</span>
+        <button onclick="closeSlipModal()" class="bg-zinc-800 px-3 py-1 rounded-lg text-xs">✕ ปิด</button>
+      </div>
+      <img id="slipModalImg" src="" alt="สลิปโอนเงิน" class="w-full max-h-[75vh] object-contain rounded-xl border border-zinc-700 bg-zinc-900">
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxX5YpKcQoXCBpDMiaOELwySO4zDr0UCDReh7fpsdUSdSGnujn-A_vcjPhvWZy3kmlWaA/exec';
+    let adminPin = localStorage.getItem('ile4_admin_pin') || '';
+    let allOrders = [];
+    let html5QrCode = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (adminPin) {
+        document.getElementById('pinInput').value = adminPin;
+        handleLogin();
+      }
+    });
+
+    async function handleLogin() {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!pin) return;
+
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('loginError');
+      btn.disabled = true;
+      btn.innerText = 'กำลังตรวจสอบ...';
+      err.classList.add('hidden');
+
+      try {
+        const res = await fetch(`${API_URL}?action=getAdminOrders&pin=${encodeURIComponent(pin)}`);
+        const json = await res.json();
+
+        if (json.status === 'success') {
+          adminPin = pin;
+          localStorage.setItem('ile4_admin_pin', pin);
+          allOrders = json.data || [];
+          document.getElementById('loginScreen').classList.add('hidden');
+          document.getElementById('dashboardScreen').classList.remove('hidden');
+          updateStats();
+          renderOrders();
+        } else {
+          err.innerText = json.message || 'รหัสผ่านไม่ถูกต้อง';
+          err.classList.remove('hidden');
+          localStorage.removeItem('ile4_admin_pin');
+        }
+      } catch (e) {
+        err.innerText = 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ';
+        err.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🔓 เข้าสู่ระบบหลังบ้าน';
+      }
+    }
+
+    function logout() {
+      stopScanner();
+      localStorage.removeItem('ile4_admin_pin');
+      location.reload();
+    }
+
+    async function fetchAdminOrders() {
+      const container = document.getElementById('ordersListContainer');
+      container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">🔄 กำลังอัปเดตข้อมูลล่าสุด...</div>`;
+
+      try {
+        const res = await fetch(`${API_URL}?action=getAdminOrders&pin=${encodeURIComponent(adminPin)}`);
+        const json = await res.json();
+        if (json.status === 'success') {
+          allOrders = json.data || [];
+          updateStats();
+          renderOrders();
+        }
+      } catch (e) {
+        alert('โหลดข้อมูลไม่สำเร็จ');
+      }
+    }
+
+    function updateStats() {
+      let pending = 0, approved = 0, shirts = 0, revenue = 0;
+      allOrders.forEach(o => {
+        if (o.status === 'รอตรวจสอบ') pending++;
+        if (o.status === 'อนุมัติแล้ว') {
+          approved++;
+          shirts += Number(o.totalQty || 0);
+          revenue += Number(o.grandTotal || 0);
+        }
+      });
+
+      document.getElementById('statTotal').innerText = allOrders.length;
+      document.getElementById('statPending').innerText = pending;
+      document.getElementById('statApproved').innerText = approved;
+      document.getElementById('statShirts').innerText = shirts;
+      document.getElementById('statRevenue').innerText = revenue.toLocaleString();
+    }
+
+    function switchAdminTab(tab) {
+      document.getElementById('aview-orders').classList.toggle('hidden', tab !== 'orders');
+      document.getElementById('aview-scanner').classList.toggle('hidden', tab !== 'scanner');
+
+      document.getElementById('atab-orders').className = tab === 'orders'
+        ? 'flex-1 py-2.5 rounded-lg text-xs md:text-sm font-bold bg-yellow-400 text-zinc-950'
+        : 'flex-1 py-2.5 rounded-lg text-xs md:text-sm font-bold text-zinc-400 hover:text-white';
+
+      document.getElementById('atab-scanner').className = tab === 'scanner'
+        ? 'flex-1 py-2.5 rounded-lg text-xs md:text-sm font-bold bg-yellow-400 text-zinc-950'
+        : 'flex-1 py-2.5 rounded-lg text-xs md:text-sm font-bold text-zinc-400 hover:text-white';
+
+      if (tab !== 'scanner') stopScanner();
+    }
+
+    function renderOrders() {
+      const container = document.getElementById('ordersListContainer');
+      const keyword = document.getElementById('adminSearch').value.trim().toLowerCase();
+      const filter = document.getElementById('statusFilter').value;
+
+      const filtered = allOrders.filter(o => {
+        const matchSearch = !keyword ||
+          o.orderId.toLowerCase().includes(keyword) ||
+          o.customerName.toLowerCase().includes(keyword) ||
+          o.phone.includes(keyword);
+
+        if (!matchSearch) return false;
+        if (filter === 'ALL') return true;
+        if (filter === 'SHIPPING') return o.orderType === 'จัดส่งพัสดุ';
+        if (filter === 'PICKUP') return o.orderType === 'รับหน้างาน';
+        return o.status === filter;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-10 text-zinc-500 text-sm glass-card rounded-2xl">ไม่พบรายการที่ตรงกับเงื่อนไข</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(o => {
+        const isShipping = o.orderType === 'จัดส่งพัสดุ';
+        const statusBadge = o.status === 'อนุมัติแล้ว'
+          ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+          : o.status === 'ยกเลิก'
+            ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+            : 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+
+        // แปลง Google Drive URL ให้โหลดเป็นรูปภาพได้เสถียร
+        const fileIdMatch = (o.slipUrl || '').match(/id=([a-zA-Z0-9_-]+)/);
+        const directImgUrl = fileIdMatch ? `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}` : o.slipUrl;
+
+        return `
+          <div class="glass-card rounded-2xl p-4 space-y-3">
+            <div class="flex flex-wrap justify-between items-start gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-extrabold text-yellow-400 text-base">${o.orderId}</span>
+                  <span class="text-[11px] px-2 py-0.5 rounded font-bold ${isShipping ? 'bg-blue-500/20 text-blue-300' : 'bg-purple-500/20 text-purple-300'}">
+                    ${o.orderType}
+                  </span>
+                  <span class="text-[11px] px-2 py-0.5 rounded border font-bold ${statusBadge}">${o.status}</span>
+                </div>
+                <p class="text-white font-bold text-sm mt-1">${o.customerName} <a href="tel:${o.phone}" class="text-zinc-400 font-normal ml-1 underline">(${o.phone})</a></p>
+                <p class="text-[11px] text-zinc-500">เวลาทำรายการ: ${o.timestamp}</p>
+              </div>
+
+              <div class="text-right">
+                <p class="text-xs text-zinc-400">ยอดโอนสุทธิ</p>
+                <p class="text-xl font-extrabold text-yellow-400">${Number(o.grandTotal).toLocaleString()}.-</p>
+                ${isShipping ? `<p class="text-[11px] text-zinc-400">รวมค่าส่ง ${o.shippingFee}.- ${o.isRemote.includes('ใช่') ? '(ห่างไกล)' : ''}</p>` : ''}
+              </div>
+            </div>
+
+            <!-- Items & Address -->
+            <div class="bg-zinc-900/90 p-3 rounded-xl text-xs space-y-1 border border-zinc-800">
+              <p class="text-zinc-200">👕 รายการ: <strong class="text-yellow-400">${o.itemsSummary}</strong> (รวม ${o.totalQty} ตัว)</p>
+              ${isShipping ? `<p class="text-zinc-300">📍 ที่อยู่จัดส่ง: ${o.shippingAddress} <strong>${o.zipcode}</strong></p>` : `<p class="text-zinc-400">🏁 สถานะรับหน้างาน: <strong class="text-white">${o.pickupStatus}</strong></p>`}
+              ${o.adminNote ? `<p class="text-rose-400">📝 หมายเหตุ: ${o.adminNote}</p>` : ''}
+            </div>
+
+            <!-- Tracking Input for Shipping -->
+            ${isShipping ? `
+              <div class="flex gap-2 items-center">
+                <input type="text" id="track_${o.orderId}" value="${o.trackingNo || ''}" placeholder="กรอกเลขพัสดุ (เช่น Flash / ไปรษณีย์)..."
+                  class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-lg px-3 py-1.5 text-xs">
+                <button onclick="saveTracking('${o.orderId}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs">
+                  บันทึกเลขพัสดุ
+                </button>
+              </div>
+            ` : ''}
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-2 pt-1">
+              ${directImgUrl ? `
+                <button onclick="openSlipModal('${directImgUrl}', '${o.orderId} - ${o.customerName} (${o.grandTotal}.-)')"
+                  class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs border border-zinc-700">
+                  🖼️ ดูสลิปโอนเงิน
+                </button>
+              ` : ''}
+
+              ${o.status !== 'อนุมัติแล้ว' ? `
+                <button onclick="updateStatus('${o.orderId}', 'อนุมัติแล้ว')"
+                  class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs">
+                  ✅ อนุมัติยอดโอน
+                </button>
+              ` : ''}
+
+              ${o.status !== 'ยกเลิก' ? `
+                <button onclick="rejectOrder('${o.orderId}')"
+                  class="bg-rose-950 hover:bg-rose-900 text-rose-300 font-bold px-3.5 py-2 rounded-xl text-xs border border-rose-800/50">
+                  ❌ ยกเลิก/ปฏิเสธ
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openSlipModal(url, title) {
+      document.getElementById('slipModalTitle').innerText = title;
+      document.getElementById('slipModalImg').src = url;
+      document.getElementById('slipModal').classList.remove('hidden');
+    }
+
+    function closeSlipModal() {
+      document.getElementById('slipModal').classList.add('hidden');
+    }
+
+    async function updateStatus(orderId, newStatus, note = '') {
+      if (!confirm(`ยืนยันเปลี่ยนสถานะบิล ${orderId} เป็น "${newStatus}" ?`)) return;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'updateOrderStatus',
+            pin: adminPin,
+            orderId: orderId,
+            status: newStatus,
+            adminNote: note
+          })
+        });
+        const json = await res.json();
+        if (json.status === 'success') {
+          await fetchAdminOrders();
+        } else {
+          alert(json.message);
+        }
+      } catch (e) {
+        alert('อัปเดตสถานะไม่สำเร็จ');
+      }
+    }
+
+    function rejectOrder(orderId) {
+      const reason = prompt(`ระบุเหตุผลที่ยกเลิก/ปฏิเสธบิล ${orderId} (เช่น ยอดไม่ตรง / สลิปไม่ถูกต้อง):`, 'ยอดโอนไม่ถูกต้อง กรุณาติดต่อผู้ประสานงาน');
+      if (reason === null) return;
+      updateStatus(orderId, 'ยกเลิก', reason);
+    }
+
+    async function saveTracking(orderId) {
+      const trackingNo = document.getElementById(`track_${orderId}`).value.trim();
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'updateOrderStatus',
+            pin: adminPin,
+            orderId: orderId,
+            trackingNo: trackingNo,
+            pickupStatus: trackingNo ? 'จัดส่งแล้ว' : 'รอจัดส่ง'
+          })
+        });
+        const json = await res.json();
+        if (json.status === 'success') {
+          alert(`บันทึกเลขพัสดุของบิล ${orderId} เรียบร้อย`);
+          await fetchAdminOrders();
+        }
+      } catch (e) {
+        alert('บันทึกเลขพัสดุไม่สำเร็จ');
+      }
+    }
+
+    // ================= QR SCANNER & PICKUP CHECK-IN =================
+    function startScanner() {
+      document.getElementById('startCamBtn').classList.add('hidden');
+      document.getElementById('stopCamBtn').classList.remove('hidden');
+
+      html5QrCode = new Html5Qrcode("qrReader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+          document.getElementById('manualCodeInput').value = decodedText.trim();
+          lookupForPickup();
+          stopScanner();
+        },
+        () => {}
+      ).catch(err => {
+        alert('ไม่สามารถเปิดกล้องได้: ' + err);
+        stopScanner();
+      });
+    }
+
+    function stopScanner() {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+        html5QrCode = null;
+      }
+      document.getElementById('startCamBtn').classList.remove('hidden');
+      document.getElementById('stopCamBtn').classList.add('hidden');
+    }
+
+    function lookupForPickup() {
+      const query = document.getElementById('manualCodeInput').value.trim().toUpperCase();
+      const box = document.getElementById('pickupResultBox');
+      if (!query) return;
+
+      const found = allOrders.find(o => o.orderId.toUpperCase() === query || o.phone === query.replace(/\D/g, ''));
+      if (!found) {
+        box.innerHTML = `<div class="p-4 bg-rose-950/60 border border-rose-700 rounded-2xl text-center text-sm text-rose-300">❌ ไม่พบข้อมูลรหัสบิลหรือเบอร์โทรนี้ในระบบ</div>`;
+        return;
+      }
+
+      const isPaid = found.status === 'อนุมัติแล้ว';
+      const isPicked = found.pickupStatus === 'รับของแล้ว';
+
+      box.innerHTML = `
+        <div class="glass-card p-5 rounded-2xl border-2 ${isPaid ? 'border-emerald-500' : 'border-amber-500'} space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xl font-black text-yellow-400">${found.orderId}</span>
+            <span class="px-3 py-1 rounded-full text-xs font-extrabold ${isPaid ? 'bg-emerald-500 text-zinc-950' : 'bg-amber-400 text-zinc-950'}">
+              ${found.status}
+            </span>
+          </div>
+
+          <div class="text-sm space-y-1">
+            <p class="text-white font-bold text-base">${found.customerName} (${found.phone})</p>
+            <p class="text-zinc-300">ประเภท: <strong>${found.orderType}</strong></p>
+            <div class="bg-zinc-900 p-3 rounded-xl border border-zinc-700 my-2">
+              <p class="text-xs text-zinc-400">รายการเสื้อที่ต้องจ่ายให้:</p>
+              <p class="text-lg font-extrabold text-yellow-400">${found.itemsSummary}</p>
+            </div>
+            <p class="text-xs">สถานะการรับของ: <strong class="${isPicked ? 'text-rose-400' : 'text-emerald-400'}">${found.pickupStatus}</strong></p>
+          </div>
+
+          ${!isPicked && isPaid ? `
+            <button onclick="confirmPickup('${found.orderId}')" class="w-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-extrabold py-3.5 rounded-xl text-sm">
+              ✅ ยืนยันการรับเสื้อและริสต์แบนด์หน้างาน
+            </button>
+          ` : isPicked ? `
+            <div class="p-3 bg-rose-950/70 border border-rose-700 rounded-xl text-center text-xs text-rose-300 font-bold">
+              ⚠️ บิลนี้กดรับเสื้อไปแล้ว ห้ามจ่ายซ้ำ!
+            </div>
+          ` : `
+            <div class="p-3 bg-amber-950/70 border border-amber-700 rounded-xl text-center text-xs text-amber-300 font-bold">
+              ⚠️ บิลนี้ยังไม่ผ่านการอนุมัติยอดโอน กรุณาตรวจสอบสลิปก่อนจ่ายเสื้อ
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    async function confirmPickup(orderId) {
+      if (!confirm(`ยืนยันจ่ายเสื้อและริสต์แบนด์ให้บิล ${orderId} เรียบร้อยแล้วใช่หรือไม่?`)) return;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'updateOrderStatus',
+            pin: adminPin,
+            orderId: orderId,
+            pickupStatus: 'รับของแล้ว'
+          })
+        });
+        const json = await res.json();
+        if (json.status === 'success') {
+          alert(`บันทึกการรับของบิล ${orderId} สำเร็จ!`);
+          await fetchAdminOrders();
+          lookupForPickup();
+        }
+      } catch (e) {
+        alert('บันทึกข้อมูลไม่สำเร็จ');
+      }
+    }
+  </script>
+</body>
+</html>
