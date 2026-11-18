@@ -6,8 +6,8 @@
   <title>I LOVE ENDURO #4 | ลงทะเบียน & สั่งจองเสื้อกิจกรรม</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- QR Code Generator & HTML2Canvas สำหรับเซฟ E-Ticket -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- QRious (สร้าง QR เป็นรูปภาพทันที ไม่หายตอนเซฟ) & HTML2Canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body { font-family: 'Kanit', sans-serif; background-color: #0f1115; color: #f3f4f6; }
@@ -33,20 +33,32 @@
 
   <!-- Header Banner -->
   <header class="bg-zinc-950 border-b border-zinc-800 py-6 px-4 text-center relative overflow-hidden">
+    <!-- Language Switcher Top-Right -->
+    <div class="max-w-3xl mx-auto flex justify-end mb-2">
+      <div class="inline-flex bg-zinc-900 border border-zinc-700 rounded-xl p-0.5 text-xs font-bold">
+        <button type="button" id="lang-th" onclick="setLanguage('th')" class="px-3 py-1 rounded-lg bg-yellow-400 text-zinc-950 transition">
+          🇹🇭 ไทย
+        </button>
+        <button type="button" id="lang-en" onclick="setLanguage('en')" class="px-3 py-1 rounded-lg text-zinc-400 hover:text-white transition">
+          🇬🇧 EN
+        </button>
+      </div>
+    </div>
+
     <div class="max-w-3xl mx-auto">
-      <span class="inline-block bg-yellow-400 text-zinc-950 text-xs font-extrabold px-3 py-1 rounded-full tracking-wider uppercase mb-2">
+      <span id="txt-dateBadge" class="inline-block bg-yellow-400 text-zinc-950 text-xs font-extrabold px-3 py-1 rounded-full tracking-wider uppercase mb-2">
         26 - 27 ธันวาคม 2569 • บ้านธิ จ.ลำพูน
       </span>
       <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-        รวมพลคนรักเอ็นดูโร่ <span class="text-yellow-400">#4</span>
+        <span id="txt-mainTitle">รวมพลคนรักเอ็นดูโร่</span> <span class="text-yellow-400">#4</span>
       </h1>
       <p class="text-zinc-400 text-sm md:text-base mt-1">
         I LOVE ENDURO #4 • Off-Road Racing & Camping Festival
       </p>
       <div class="mt-3 inline-flex flex-wrap justify-center gap-2 text-xs text-zinc-300 bg-zinc-900/90 px-4 py-2 rounded-xl border border-zinc-800">
-        <span>📍 สนามพารามอเตอร์ Upper in the air</span>
+        <span id="txt-location">📍 สนามพารามอเตอร์ Upper in the air</span>
         <span class="hidden sm:inline">|</span>
-        <a href="https://maps.app.goo.gl/PxNR3NiXosew6esX8?g_st=ic" target="_blank" class="text-yellow-400 underline hover:text-yellow-300">เปิดแผนที่ Google Maps</a>
+        <a id="txt-mapLink" href="https://maps.app.goo.gl/PxNR3NiXosew6esX8?g_st=ic" target="_blank" class="text-yellow-400 underline hover:text-yellow-300">เปิดแผนที่ Google Maps</a>
       </div>
     </div>
   </header>
@@ -71,16 +83,16 @@
 
       <!-- Notice Banner -->
       <div class="bg-zinc-900/80 border-l-4 border-yellow-400 p-4 rounded-r-xl text-xs md:text-sm text-zinc-300 space-y-1">
-        <p class="font-bold text-yellow-400">📢 กติกาและเงื่อนไขการร่วมงาน:</p>
-        <p>• <strong>เข้างานอย่างเดียว (ไม่รับเสื้อ):</strong> ซื้อบัตรหน้างาน 200 บาท (เฉพาะผู้ชาย / ผู้หญิง เด็ก และผู้สูงอายุ เข้าฟรี!)</p>
-        <p>• <strong>ลงทะเบียนล่วงหน้า:</strong> เลือกได้ระหว่าง <u>รับหน้างาน (บัตร+เสื้อ)</u> หรือ <u>จัดส่งไปรษณีย์ (เฉพาะเสื้อ)</u></p>
+        <p id="txt-ruleTitle" class="font-bold text-yellow-400">📢 กติกาและเงื่อนไขการร่วมงาน:</p>
+        <p id="txt-rule1">• <strong>เข้างานอย่างเดียว (ไม่รับเสื้อ):</strong> ซื้อบัตรหน้างาน 200 บาท (เฉพาะผู้ชาย / ผู้หญิง เด็ก และผู้สูงอายุ เข้าฟรี!)</p>
+        <p id="txt-rule2">• <strong>ลงทะเบียนล่วงหน้า:</strong> เลือกได้ระหว่าง <u>รับหน้างาน (บัตร+เสื้อ)</u> หรือ <u>จัดส่งไปรษณีย์ (เฉพาะเสื้อ)</u></p>
       </div>
 
       <!-- Step 1: Select Mode -->
       <section class="glass-card rounded-2xl p-5">
         <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
           <span class="bg-yellow-400 text-zinc-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-sm font-extrabold">1</span>
-          เลือกรูปแบบการสั่งซื้อ (เลือกอย่างใดอย่างหนึ่ง)
+          <span id="txt-step1Title">เลือกรูปแบบการสั่งซื้อ (เลือกอย่างใดอย่างหนึ่ง)</span>
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -88,12 +100,12 @@
           <label class="cursor-pointer">
             <input type="radio" name="orderMode" value="PICKUP" class="peer sr-only" checked onchange="handleModeChange()">
             <div class="p-4 rounded-xl border-2 border-zinc-700 bg-zinc-900/60 peer-checked:border-yellow-400 peer-checked:bg-yellow-400/10 transition-all h-full">
-              <div class="flex justify-between items-start">
-                <span class="font-bold text-base text-white">🏁 บัตรเข้างาน + เสื้อกิจกรรม</span>
-                <span class="bg-yellow-400 text-zinc-950 text-xs font-extrabold px-2 py-0.5 rounded">500.- / ชุด</span>
+              <div class="flex justify-between items-start gap-2">
+                <span id="txt-modeATitle" class="font-bold text-base text-white">🏁 บัตรเข้างาน + เสื้อกิจกรรม</span>
+                <span id="txt-modeAPrice" class="bg-yellow-400 text-zinc-950 text-xs font-extrabold px-2 py-0.5 rounded whitespace-nowrap">500.- / ชุด</span>
               </div>
-              <p class="text-xs text-zinc-400 mt-2">• ได้สิทธิ์เข้างาน + เสื้อแขนยาว I LOVE ENDURO 2026</p>
-              <p class="text-xs text-yellow-400 mt-1 font-medium">• รับเสื้อและริสต์แบนด์หน้างานเท่านั้น (ไม่มีค่าส่ง)</p>
+              <p id="txt-modeADesc1" class="text-xs text-zinc-400 mt-2">• ได้สิทธิ์เข้างาน + เสื้อแขนยาว I LOVE ENDURO 2026</p>
+              <p id="txt-modeADesc2" class="text-xs text-yellow-400 mt-1 font-medium">• รับเสื้อและริสต์แบนด์หน้างานเท่านั้น (ไม่มีค่าส่ง)</p>
             </div>
           </label>
 
@@ -101,12 +113,12 @@
           <label class="cursor-pointer">
             <input type="radio" name="orderMode" value="SHIPPING" class="peer sr-only" onchange="handleModeChange()">
             <div class="p-4 rounded-xl border-2 border-zinc-700 bg-zinc-900/60 peer-checked:border-yellow-400 peer-checked:bg-yellow-400/10 transition-all h-full">
-              <div class="flex justify-between items-start">
-                <span class="font-bold text-base text-white">📦 ซื้อเสื้ออย่างเดียว (จัดส่งที่บ้าน)</span>
-                <span class="bg-zinc-700 text-white text-xs font-extrabold px-2 py-0.5 rounded">400.- / ตัว</span>
+              <div class="flex justify-between items-start gap-2">
+                <span id="txt-modeBTitle" class="font-bold text-base text-white">📦 ซื้อเสื้ออย่างเดียว (จัดส่งที่บ้าน)</span>
+                <span id="txt-modeBPrice" class="bg-zinc-700 text-white text-xs font-extrabold px-2 py-0.5 rounded whitespace-nowrap">400.- / ตัว</span>
               </div>
-              <p class="text-xs text-zinc-400 mt-2">• สำหรับผู้ที่ไม่สะดวกมาร่วมงาน แต่อยากเก็บเสื้อที่ระลึก</p>
-              <p class="text-xs text-zinc-300 mt-1">• ค่าจัดส่ง 50.- / บิล (พื้นที่ห่างไกล +50.-)</p>
+              <p id="txt-modeBDesc1" class="text-xs text-zinc-400 mt-2">• สำหรับผู้ที่ไม่สะดวกมาร่วมงาน แต่อยากเก็บเสื้อที่ระลึก</p>
+              <p id="txt-modeBDesc2" class="text-xs text-zinc-300 mt-1">• ค่าจัดส่ง 50.- / บิล (พื้นที่ห่างไกล +50.-)</p>
             </div>
           </label>
         </div>
@@ -117,9 +129,9 @@
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <span class="bg-yellow-400 text-zinc-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-sm font-extrabold">2</span>
-            เลือกไซส์และจำนวนเสื้อ
+            <span id="txt-step2Title">เลือกไซส์และจำนวนเสื้อ</span>
           </h2>
-          <button type="button" onclick="toggleSizeChart()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-yellow-400 px-3 py-1.5 rounded-lg border border-zinc-700">
+          <button type="button" id="txt-sizeChartBtn" onclick="toggleSizeChart()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-yellow-400 px-3 py-1.5 rounded-lg border border-zinc-700">
             📏 ดูตารางไซส์เสื้อ
           </button>
         </div>
@@ -128,22 +140,22 @@
         <div id="sizeChartBox" class="hidden mb-4 p-3 bg-zinc-900 rounded-xl border border-zinc-700 text-xs">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <p class="font-bold text-yellow-400 mb-1">👕 ตารางไซส์เด็ก (รอบอก / ยาว)</p>
+              <p id="txt-kidSizeTitle" class="font-bold text-yellow-400 mb-1">👕 ตารางไซส์เด็ก (รอบอก / ยาว)</p>
               <ul class="space-y-0.5 text-zinc-300">
-                <li>S เด็ก: 24" / 19"</li>
-                <li>M เด็ก: 26" / 20"</li>
-                <li>L เด็ก: 28" / 21"</li>
-                <li>XL เด็ก: 30" / 22"</li>
+                <li>S เด็ก (Kids S): 24" / 19"</li>
+                <li>M เด็ก (Kids M): 26" / 20"</li>
+                <li>L เด็ก (Kids L): 28" / 21"</li>
+                <li>XL เด็ก (Kids XL): 30" / 22"</li>
               </ul>
             </div>
             <div>
-              <p class="font-bold text-yellow-400 mb-1">👕 ตารางไซส์ผู้ใหญ่ (รอบอก / ยาว)</p>
+              <p id="txt-adultSizeTitle" class="font-bold text-yellow-400 mb-1">👕 ตารางไซส์ผู้ใหญ่ (รอบอก / ยาว)</p>
               <ul class="space-y-0.5 text-zinc-300">
                 <li>4S: 32"/23" | 3S: 34"/24" | 2S: 36"/25"</li>
                 <li>S: 38"/26" | M: 40"/27" | L: 42"/28"</li>
                 <li>XL: 44"/29" | 2XL: 46"/30"</li>
-                <li class="text-amber-300">3XL: 48"/30" | 4XL: 50"/30" (+50.-)</li>
-                <li class="text-rose-300">5XL-9XL: 52"-60" (+100.-)</li>
+                <li class="text-amber-300">3XL: 48"/30" | 4XL: 50"/30" (+50 THB)</li>
+                <li class="text-rose-300">5XL-9XL: 52"-60" (+100 THB)</li>
               </ul>
             </div>
           </div>
@@ -152,38 +164,38 @@
         <!-- Add Size Controls -->
         <div class="flex flex-col sm:flex-row gap-2 mb-4">
           <select id="sizeSelect" class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
-            <optgroup label="--- ไซส์ผู้ใหญ่ (ราคาปกติ) ---">
-              <option value="S">S (รอบอก 38" / ยาว 26")</option>
-              <option value="M">M (รอบอก 40" / ยาว 27")</option>
-              <option value="L" selected>L (รอบอก 42" / ยาว 28")</option>
-              <option value="XL">XL (รอบอก 44" / ยาว 29")</option>
-              <option value="2XL">2XL (รอบอก 46" / ยาว 30")</option>
-              <option value="2S">2S (รอบอก 36" / ยาว 25")</option>
-              <option value="3S">3S (รอบอก 34" / ยาว 24")</option>
-              <option value="4S">4S (รอบอก 32" / ยาว 23")</option>
+            <optgroup label="--- Adult Sizes (Standard) ---">
+              <option value="S">S (Chest 38" / Length 26")</option>
+              <option value="M">M (Chest 40" / Length 27")</option>
+              <option value="L" selected>L (Chest 42" / Length 28")</option>
+              <option value="XL">XL (Chest 44" / Length 29")</option>
+              <option value="2XL">2XL (Chest 46" / Length 30")</option>
+              <option value="2S">2S (Chest 36" / Length 25")</option>
+              <option value="3S">3S (Chest 34" / Length 24")</option>
+              <option value="4S">4S (Chest 32" / Length 23")</option>
             </optgroup>
-            <optgroup label="--- ไซส์ใหญ่พิเศษ (+50 บาท) ---">
-              <option value="3XL">3XL (รอบอก 48" / ยาว 30") [+50.-]</option>
-              <option value="4XL">4XL (รอบอก 50" / ยาว 30") [+50.-]</option>
+            <optgroup label="--- Plus Sizes (+50 THB) ---">
+              <option value="3XL">3XL (Chest 48" / Length 30") [+50.-]</option>
+              <option value="4XL">4XL (Chest 50" / Length 30") [+50.-]</option>
             </optgroup>
-            <optgroup label="--- ไซส์ใหญ่พิเศษ (+100 บาท) ---">
-              <option value="5XL">5XL (รอบอก 52" / ยาว 30") [+100.-]</option>
-              <option value="6XL">6XL (รอบอก 54" / ยาว 31") [+100.-]</option>
-              <option value="7XL">7XL (รอบอก 56" / ยาว 31") [+100.-]</option>
-              <option value="8XL">8XL (รอบอก 58" / ยาว 31") [+100.-]</option>
-              <option value="9XL">9XL (รอบอก 60" / ยาว 31") [+100.-]</option>
+            <optgroup label="--- Plus Sizes (+100 THB) ---">
+              <option value="5XL">5XL (Chest 52" / Length 30") [+100.-]</option>
+              <option value="6XL">6XL (Chest 54" / Length 31") [+100.-]</option>
+              <option value="7XL">7XL (Chest 56" / Length 31") [+100.-]</option>
+              <option value="8XL">8XL (Chest 58" / Length 31") [+100.-]</option>
+              <option value="9XL">9XL (Chest 60" / Length 31") [+100.-]</option>
             </optgroup>
-            <optgroup label="--- ไซส์เด็ก (ราคาปกติ) ---">
-              <option value="S เด็ก">S เด็ก (รอบอก 24" / ยาว 19")</option>
-              <option value="M เด็ก">M เด็ก (รอบอก 26" / ยาว 20")</option>
-              <option value="L เด็ก">L เด็ก (รอบอก 28" / ยาว 21")</option>
-              <option value="XL เด็ก">XL เด็ก (รอบอก 30" / ยาว 22")</option>
+            <optgroup label="--- Kids Sizes (Standard) ---">
+              <option value="S เด็ก">S เด็ก / Kids S (Chest 24" / Length 19")</option>
+              <option value="M เด็ก">M เด็ก / Kids M (Chest 26" / Length 20")</option>
+              <option value="L เด็ก">L เด็ก / Kids L (Chest 28" / Length 21")</option>
+              <option value="XL เด็ก">XL เด็ก / Kids XL (Chest 30" / Length 22")</option>
             </optgroup>
           </select>
 
           <div class="flex gap-2">
             <input type="number" id="qtyInput" value="1" min="1" max="50" class="w-20 bg-zinc-900 border border-zinc-700 text-white text-center rounded-xl px-2 py-2.5 text-sm">
-            <button type="button" onclick="addToCart()" class="btn-yellow px-5 py-2.5 rounded-xl text-sm whitespace-nowrap">
+            <button type="button" id="txt-addBtn" onclick="addToCart()" class="btn-yellow px-5 py-2.5 rounded-xl text-sm whitespace-nowrap">
               + เพิ่มลงรายการ
             </button>
           </div>
@@ -199,16 +211,16 @@
       <section class="glass-card rounded-2xl p-5 space-y-4">
         <h2 class="text-lg font-bold text-white flex items-center gap-2">
           <span class="bg-yellow-400 text-zinc-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-sm font-extrabold">3</span>
-          ข้อมูลผู้สมัคร / ผู้รับสินค้า
+          <span id="txt-step3Title">ข้อมูลผู้สมัคร / ผู้รับสินค้า</span>
         </h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs text-zinc-400 mb-1">ชื่อ - นามสกุล (หรือชื่อทีม) <span class="text-rose-500">*</span></label>
-            <input type="text" id="customerName" placeholder="เช่น สมชาย สายลุย" class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
+            <label class="block text-xs text-zinc-400 mb-1"><span id="txt-nameLabel">ชื่อ - นามสกุล (หรือชื่อทีม)</span> <span class="text-rose-500">*</span></label>
+            <input type="text" id="customerName" placeholder="เช่น สมชาย สายลุย / Somchai" class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
           </div>
           <div>
-            <label class="block text-xs text-zinc-400 mb-1">เบอร์โทรศัพท์ (ใช้ค้นหาบิลและ E-Ticket) <span class="text-rose-500">*</span></label>
+            <label class="block text-xs text-zinc-400 mb-1"><span id="txt-phoneLabel">เบอร์โทรศัพท์ (ใช้ค้นหาบิลและ E-Ticket)</span> <span class="text-rose-500">*</span></label>
             <input type="tel" id="customerPhone" maxlength="10" placeholder="08XXXXXXXX" class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
           </div>
         </div>
@@ -216,12 +228,12 @@
         <!-- Shipping Address Box (Hidden when PICKUP) -->
         <div id="shippingFields" class="hidden space-y-3 pt-2 border-t border-zinc-800">
           <div>
-            <label class="block text-xs text-zinc-400 mb-1">ที่อยู่จัดส่งพัสดุ (บ้านเลขที่ / หมู่ / ตำบล / อำเภอ / จังหวัด) <span class="text-rose-500">*</span></label>
+            <label class="block text-xs text-zinc-400 mb-1"><span id="txt-addrLabel">ที่อยู่จัดส่งพัสดุ (บ้านเลขที่ / หมู่ / ตำบล / อำเภอ / จังหวัด)</span> <span class="text-rose-500">*</span></label>
             <textarea id="shippingAddress" rows="2" placeholder="ระบุที่อยู่ให้ครบถ้วน..." class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400"></textarea>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
             <div>
-              <label class="block text-xs text-zinc-400 mb-1">รหัสไปรษณีย์ (5 หลัก) <span class="text-rose-500">*</span></label>
+              <label class="block text-xs text-zinc-400 mb-1"><span id="txt-zipLabel">รหัสไปรษณีย์ (5 หลัก)</span> <span class="text-rose-500">*</span></label>
               <input type="text" id="zipcodeInput" maxlength="5" placeholder="เช่น 51130" oninput="recalculateTotal()" class="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
             </div>
             <div id="remoteBadge" class="text-xs text-zinc-400 pt-4">
@@ -235,57 +247,57 @@
       <section class="glass-card rounded-2xl p-5 space-y-5">
         <h2 class="text-lg font-bold text-white flex items-center gap-2">
           <span class="bg-yellow-400 text-zinc-950 w-6 h-6 rounded-full inline-flex items-center justify-center text-sm font-extrabold">4</span>
-          สรุปยอดชำระเงินและแนบสลิป
+          <span id="txt-step4Title">สรุปยอดชำระเงินและแนบสลิป</span>
         </h2>
 
         <!-- Price Breakdown -->
         <div class="bg-zinc-900 rounded-xl p-4 border border-zinc-800 space-y-2 text-sm">
           <div class="flex justify-between text-zinc-400">
-            <span>ค่าเสื้อ/แพ็กเกจ (<span id="sumQty">0</span> รายการ)</span>
-            <span><span id="sumSubtotal">0</span> บาท</span>
+            <span><span id="txt-sumItemLabel">ค่าเสื้อ/แพ็กเกจ</span> (<span id="sumQty">0</span> <span id="txt-unitItem">รายการ</span>)</span>
+            <span><span id="sumSubtotal">0</span> <span class="txt-currency">บาท</span></span>
           </div>
           <div class="flex justify-between text-zinc-400" id="shippingRow">
-            <span>ค่าจัดส่งพัสดุ</span>
-            <span><span id="sumShipping">0</span> บาท</span>
+            <span id="txt-sumShipLabel">ค่าจัดส่งพัสดุ</span>
+            <span><span id="sumShipping">0</span> <span class="txt-currency">บาท</span></span>
           </div>
           <div class="border-t border-zinc-800 pt-2 flex justify-between items-center text-base font-bold">
-            <span class="text-white">ยอดโอนสุทธิ</span>
-            <span class="text-2xl text-yellow-400"><span id="sumGrandTotal">0</span> บาท</span>
+            <span id="txt-sumGrandLabel" class="text-white">ยอดโอนสุทธิ</span>
+            <span class="text-2xl text-yellow-400"><span id="sumGrandTotal">0</span> <span class="txt-currency">บาท</span></span>
           </div>
         </div>
 
         <!-- Bank & PromptPay QR -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
           <div class="flex flex-col items-center bg-white p-3 rounded-xl">
-            <div class="text-xs font-bold text-blue-900 mb-1">สแกน QR พร้อมเพย์ (ระบุยอดให้อัตโนมัติ)</div>
+            <div id="txt-qrTitle" class="text-xs font-bold text-blue-900 mb-1">สแกน QR พร้อมเพย์ (ระบุยอดให้อัตโนมัติ)</div>
             <div id="promptpayQR" class="my-1"></div>
-            <div class="text-[11px] text-zinc-600 mt-1">พร้อมเพย์: 089-563-0486</div>
+            <div class="text-[11px] text-zinc-600 mt-1">PromptPay: 089-563-0486</div>
           </div>
 
           <div class="space-y-2 text-sm">
-            <div class="inline-block bg-purple-700 text-white text-xs font-bold px-2.5 py-1 rounded">ธนาคารไทยพาณิชย์ (SCB)</div>
-            <p class="text-zinc-400 text-xs">เลขที่บัญชี</p>
+            <div id="txt-bankName" class="inline-block bg-purple-700 text-white text-xs font-bold px-2.5 py-1 rounded">ธนาคารไทยพาณิชย์ (SCB)</div>
+            <p id="txt-accNoLabel" class="text-zinc-400 text-xs">เลขที่บัญชี</p>
             <div class="flex items-center gap-2">
               <span class="text-xl font-extrabold text-white tracking-wider">403-487702-5</span>
-              <button type="button" onclick="copyAcc()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-yellow-400 px-2.5 py-1 rounded-lg border border-zinc-700">คัดลอก</button>
+              <button type="button" id="txt-copyBtn" onclick="copyAcc()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-yellow-400 px-2.5 py-1 rounded-lg border border-zinc-700">คัดลอก</button>
             </div>
-            <p class="text-zinc-300">ชื่อบัญชี: <strong>นายคมสัน วุฒศรี</strong></p>
-            <p class="text-xs text-zinc-400 pt-1">📞 โทรประสานงาน: <a href="tel:0895630486" class="text-yellow-400">089-563-0486</a></p>
+            <p id="txt-accName" class="text-zinc-300">ชื่อบัญชี: <strong>นายคมสัน วุฒศรี</strong></p>
+            <p class="text-xs text-zinc-400 pt-1">📞 <span id="txt-contactLabel">โทรประสานงาน:</span> <a href="tel:0895630486" class="text-yellow-400">089-563-0486</a></p>
           </div>
         </div>
 
         <!-- Slip Upload -->
         <div>
-          <label class="block text-xs text-zinc-300 font-medium mb-2">อัปโหลดหลักฐานการโอนเงิน (สลิป) <span class="text-rose-500">*</span></label>
+          <label class="block text-xs text-zinc-300 font-medium mb-2"><span id="txt-slipLabel">อัปโหลดหลักฐานการโอนเงิน (สลิป)</span> <span class="text-rose-500">*</span></label>
           <input type="file" id="slipFile" accept="image/*" onchange="previewSlip(event)" class="block w-full text-sm text-zinc-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-yellow-400 file:text-zinc-950 hover:file:bg-yellow-300 cursor-pointer bg-zinc-900 rounded-xl border border-zinc-700">
           <div id="slipPreviewBox" class="hidden mt-3 flex justify-center">
-            <img id="slipPreviewImg" class="max-h-60 rounded-xl border border-zinc-700" alt="ตัวอย่างสลิป">
+            <img id="slipPreviewImg" class="max-h-60 rounded-xl border border-zinc-700" alt="Slip Preview">
           </div>
         </div>
 
         <!-- Submit Button -->
         <button type="button" id="submitBtn" onclick="submitOrder()" class="w-full btn-yellow py-3.5 rounded-xl text-base shadow-lg shadow-yellow-400/10">
-          ✅ ยืนยันการสมัครและส่งสลิป
+          ✅ ยืนยันการลงทะเบียน
         </button>
       </section>
     </div>
@@ -295,11 +307,11 @@
 
       <!-- Search by Phone Box -->
       <section class="glass-card rounded-2xl p-5">
-        <h2 class="text-lg font-bold text-white mb-2">🎫 ค้นหาบิลของฉัน & ดาวน์โหลด E-Ticket</h2>
-        <p class="text-xs text-zinc-400 mb-3">กรอกเบอร์โทรศัพท์ที่ใช้สมัคร เพื่อตรวจสอบสถานะการโอนเงิน เลขพัสดุ หรือเปิดบัตร E-Ticket</p>
+        <h2 id="txt-searchTitle" class="text-lg font-bold text-white mb-2">🎫 ค้นหาบิลของฉัน & ดาวน์โหลด E-Ticket</h2>
+        <p id="txt-searchDesc" class="text-xs text-zinc-400 mb-3">กรอกเบอร์โทรศัพท์ที่ใช้สมัคร เพื่อตรวจสอบสถานะการโอนเงิน เลขพัสดุ หรือเปิดบัตร E-Ticket</p>
         <div class="flex gap-2">
-          <input type="tel" id="searchPhoneInput" maxlength="10" placeholder="กรอกเบอร์โทร 10 หลัก เช่น 0812345678" class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
-          <button type="button" onclick="searchMyOrder()" class="btn-yellow px-6 py-2.5 rounded-xl text-sm">ค้นหา</button>
+          <input type="tel" id="searchPhoneInput" maxlength="10" placeholder="0812345678" class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-yellow-400">
+          <button type="button" id="txt-searchBtn" onclick="searchMyOrder()" class="btn-yellow px-6 py-2.5 rounded-xl text-sm">ค้นหา</button>
         </div>
         <div id="mySearchResults" class="mt-4 space-y-3"></div>
       </section>
@@ -308,20 +320,20 @@
       <section class="glass-card rounded-2xl p-5">
         <div class="flex justify-between items-center mb-4">
           <div>
-            <h2 class="text-lg font-bold text-white">📋 รายชื่อผู้ลงทะเบียน & สั่งจองเสื้อ</h2>
-            <p class="text-xs text-zinc-400">แสดงเฉพาะชื่อและไซส์เสื้อ (ปกปิดเบอร์โทรและที่อยู่เพื่อความเป็นส่วนตัว)</p>
+            <h2 id="txt-rosterTitle" class="text-lg font-bold text-white">📋 รายชื่อผู้ลงทะเบียน & สั่งจองเสื้อ</h2>
+            <p id="txt-rosterDesc" class="text-xs text-zinc-400">แสดงเฉพาะชื่อและไซส์เสื้อ (ปกปิดเบอร์โทรและที่อยู่เพื่อความเป็นส่วนตัว)</p>
           </div>
-          <button type="button" onclick="loadPublicList()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-1.5 rounded-lg border border-zinc-700">🔄 รีเฟรช</button>
+          <button type="button" id="txt-refreshBtn" onclick="loadPublicList()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-1.5 rounded-lg border border-zinc-700">🔄 รีเฟรช</button>
         </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="border-b border-zinc-700 text-zinc-400 text-xs">
-                <th class="py-2.5 px-2">รหัสบิล</th>
-                <th class="py-2.5 px-2">ชื่อผู้สมัคร</th>
-                <th class="py-2.5 px-2">รายการไซส์เสื้อ</th>
-                <th class="py-2.5 px-2 text-right">สถานะ</th>
+                <th id="th-id" class="py-2.5 px-2">รหัสบิล</th>
+                <th id="th-name" class="py-2.5 px-2">ชื่อผู้สมัคร</th>
+                <th id="th-size" class="py-2.5 px-2">รายการไซส์เสื้อ</th>
+                <th id="th-status" class="py-2.5 px-2 text-right">สถานะ</th>
               </tr>
             </thead>
             <tbody id="publicTableBody" class="divide-y divide-zinc-800">
@@ -335,17 +347,23 @@
   </main>
 
   <!-- ==================== E-TICKET MODAL ==================== -->
-  <div id="ticketModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="max-w-sm w-full space-y-3">
+  <div id="ticketModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-sm w-full space-y-3 my-auto">
+
+      <!-- Success Alert Banner (แสดงเฉพาะตอนเพิ่งกดลงทะเบียนสำเร็จ) -->
+      <div id="registerSuccessAlert" class="hidden bg-emerald-500 text-zinc-950 px-4 py-3 rounded-xl shadow-lg text-center font-bold text-sm animate-bounce">
+        🎉 ลงทะเบียนสำเร็จแล้ว! กรุณาบันทึกภาพบัตร E-Ticket ด้านล่างไว้เป็นหลักฐาน
+      </div>
+
       <!-- Capture Area -->
       <div id="ticketCard" class="bg-zinc-950 border-2 border-yellow-400 rounded-2xl overflow-hidden shadow-2xl">
         <div class="racing-stripe h-2"></div>
         <div class="p-5 text-center bg-gradient-to-b from-zinc-900 to-zinc-950">
           <span class="bg-yellow-400 text-zinc-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">OFFICIAL E-TICKET</span>
           <h3 class="text-xl font-extrabold text-white mt-1">I LOVE ENDURO <span class="text-yellow-400">#4</span></h3>
-          <p class="text-[11px] text-zinc-400">26-27 ธ.ค. 2569 • บ้านธิ จ.ลำพูน</p>
+          <p class="text-[11px] text-zinc-400">26-27 Dec 2026 • Ban Thi, Lamphun</p>
 
-          <div class="my-4 bg-white p-3 rounded-xl inline-flex items-center justify-center min-w-[154px] min-h-[154px]">
+          <div class="my-4 bg-white p-3 rounded-xl inline-flex items-center justify-center min-w-[164px] min-h-[164px]">
             <div id="ticketQR"></div>
           </div>
 
@@ -354,34 +372,34 @@
 
           <div class="mt-4 pt-3 border-t border-dashed border-zinc-700 text-left space-y-1.5 text-xs">
             <div class="flex justify-between">
-              <span class="text-zinc-400">ชื่อผู้สมัคร:</span>
+              <span class="text-zinc-400" id="tkLabelName">ชื่อผู้สมัคร:</span>
               <span class="font-bold text-white" id="tkName">-</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-zinc-400">รายการเสื้อ:</span>
+              <span class="text-zinc-400" id="tkLabelItems">รายการเสื้อ:</span>
               <span class="font-bold text-yellow-400" id="tkItems">-</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-zinc-400">ยอดชำระ:</span>
+              <span class="text-zinc-400" id="tkLabelTotal">ยอดชำระ:</span>
               <span class="font-bold text-white" id="tkTotal">-</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-zinc-400">สถานะ:</span>
+              <span class="text-zinc-400" id="tkLabelStatus">สถานะ:</span>
               <span class="font-bold text-amber-400" id="tkStatus">รอตรวจสอบ</span>
             </div>
           </div>
         </div>
-        <div class="bg-yellow-400 text-zinc-950 text-[11px] font-bold text-center py-2 px-3">
+        <div id="tkFooterNote" class="bg-yellow-400 text-zinc-950 text-[11px] font-bold text-center py-2 px-3">
           แสดงบัตรนี้ที่จุดลงทะเบียนหน้างานเพื่อรับเสื้อและริสต์แบนด์
         </div>
       </div>
 
       <!-- Modal Buttons -->
       <div class="flex gap-2">
-        <button type="button" onclick="downloadTicketImage()" class="flex-1 btn-yellow py-3 rounded-xl text-sm">
+        <button type="button" id="txt-saveTicketBtn" onclick="downloadTicketImage()" class="flex-1 btn-yellow py-3 rounded-xl text-sm">
           💾 บันทึกรูปบัตร E-Ticket
         </button>
-        <button type="button" onclick="closeTicketModal()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-3 rounded-xl text-sm font-bold">
+        <button type="button" id="txt-closeTicketBtn" onclick="closeTicketModal()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-3 rounded-xl text-sm font-bold">
           ปิด
         </button>
       </div>
@@ -396,16 +414,226 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbxX5YpKcQoXCBpDMiaOELwySO4zDr0UCDReh7fpsdUSdSGnujn-A_vcjPhvWZy3kmlWaA/exec';
     const PROMPTPAY_ID = '0895630486';
 
-    // เคลียร์ตะกร้าให้ว่างไว้ก่อนตามที่ต้องการ
-    let cart = [];
+    let currentLang = 'th';
+    let cart = []; // เคลียร์ตะกร้าให้ว่างไว้ก่อน
     let remoteZipcodes = [];
     let compressedSlipBase64 = '';
 
-    // โหลดข้อมูลเริ่มต้น
+    // พจนานุกรม 2 ภาษา (TH / EN)
+    const I18N = {
+      th: {
+        dateBadge: '26 - 27 ธันวาคม 2569 • บ้านธิ จ.ลำพูน',
+        mainTitle: 'รวมพลคนรักเอ็นดูโร่',
+        location: '📍 สนามพารามอเตอร์ Upper in the air',
+        mapLink: 'เปิดแผนที่ Google Maps',
+        tabRegister: '📝 ลงทะเบียน/สั่งเสื้อ',
+        tabStatus: '🔍 ตรวจสอบรายชื่อ & E-Ticket',
+        ruleTitle: '📢 กติกาและเงื่อนไขการร่วมงาน:',
+        rule1: '• <strong>เข้างานอย่างเดียว (ไม่รับเสื้อ):</strong> ซื้อบัตรหน้างาน 200 บาท (เฉพาะผู้ชาย / ผู้หญิง เด็ก และผู้สูงอายุ เข้าฟรี!)',
+        rule2: '• <strong>ลงทะเบียนล่วงหน้า:</strong> เลือกได้ระหว่าง <u>รับหน้างาน (บัตร+เสื้อ)</u> หรือ <u>จัดส่งไปรษณีย์ (เฉพาะเสื้อ)</u>',
+        step1Title: 'เลือกรูปแบบการสั่งซื้อ (เลือกอย่างใดอย่างหนึ่ง)',
+        modeATitle: '🏁 บัตรเข้างาน + เสื้อกิจกรรม',
+        modeAPrice: '500.- / ชุด',
+        modeADesc1: '• ได้สิทธิ์เข้างาน + เสื้อแขนยาว I LOVE ENDURO 2026',
+        modeADesc2: '• รับเสื้อและริสต์แบนด์หน้างานเท่านั้น (ไม่มีค่าส่ง)',
+        modeBTitle: '📦 ซื้อเสื้ออย่างเดียว (จัดส่งที่บ้าน)',
+        modeBPrice: '400.- / ตัว',
+        modeBDesc1: '• สำหรับผู้ที่ไม่สะดวกมาร่วมงาน แต่อยากเก็บเสื้อที่ระลึก',
+        modeBDesc2: '• ค่าจัดส่ง 50.- / บิล (พื้นที่ห่างไกล +50.-)',
+        step2Title: 'เลือกไซส์และจำนวนเสื้อ',
+        sizeChartBtn: '📏 ดูตารางไซส์เสื้อ',
+        kidSizeTitle: '👕 ตารางไซส์เด็ก (รอบอก / ยาว)',
+        adultSizeTitle: '👕 ตารางไซส์ผู้ใหญ่ (รอบอก / ยาว)',
+        addBtn: '+ เพิ่มลงรายการ',
+        emptyCart: 'ตะกร้ายังว่างอยู่ • กรุณาเลือกไซส์และกดปุ่ม "+ เพิ่มลงรายการ" ด้านบน',
+        step3Title: 'ข้อมูลผู้สมัคร / ผู้รับสินค้า',
+        nameLabel: 'ชื่อ - นามสกุล (หรือชื่อทีม)',
+        phoneLabel: 'เบอร์โทรศัพท์ (ใช้ค้นหาบิลและ E-Ticket)',
+        addrLabel: 'ที่อยู่จัดส่งพัสดุ (บ้านเลขที่ / หมู่ / ตำบล / อำเภอ / จังหวัด)',
+        zipLabel: 'รหัสไปรษณีย์ (5 หลัก)',
+        shipStd: '✓ ค่าจัดส่งมาตรฐาน 50 บาท',
+        shipRemote: '⚠️ พื้นที่ห่างไกล ค่าจัดส่ง 100 บาท (50+50)',
+        step4Title: 'สรุปยอดชำระเงินและแนบสลิป',
+        sumItemLabel: 'ค่าเสื้อ/แพ็กเกจ',
+        unitItem: 'รายการ',
+        sumShipLabel: 'ค่าจัดส่งพัสดุ',
+        sumGrandLabel: 'ยอดโอนสุทธิ',
+        currency: 'บาท',
+        qrTitle: 'สแกน QR พร้อมเพย์ (ระบุยอดให้อัตโนมัติ)',
+        bankName: 'ธนาคารไทยพาณิชย์ (SCB)',
+        accNoLabel: 'เลขที่บัญชี',
+        copyBtn: 'คัดลอก',
+        accName: 'ชื่อบัญชี: <strong>นายคมสัน วุฒศรี</strong>',
+        contactLabel: 'โทรประสานงาน:',
+        slipLabel: 'อัปโหลดหลักฐานการโอนเงิน (สลิป)',
+        submitBtn: '✅ ยืนยันการลงทะเบียน',
+        submittingBtn: '⏳ กำลังบันทึกข้อมูลและอัปโหลดสลิป...',
+        searchTitle: '🎫 ค้นหาบิลของฉัน & ดาวน์โหลด E-Ticket',
+        searchDesc: 'กรอกเบอร์โทรศัพท์ที่ใช้สมัคร เพื่อตรวจสอบสถานะการโอนเงิน เลขพัสดุ หรือเปิดบัตร E-Ticket',
+        searchBtn: 'ค้นหา',
+        rosterTitle: '📋 รายชื่อผู้ลงทะเบียน & สั่งจองเสื้อ',
+        rosterDesc: 'แสดงเฉพาะชื่อและไซส์เสื้อ (ปกปิดเบอร์โทรและที่อยู่เพื่อความเป็นส่วนตัว)',
+        refreshBtn: '🔄 รีเฟรช',
+        thId: 'รหัสบิล',
+        thName: 'ชื่อผู้สมัคร',
+        thSize: 'รายการไซส์เสื้อ',
+        thStatus: 'สถานะ',
+        successAlert: '🎉 ลงทะเบียนสำเร็จแล้ว! กรุณาบันทึกภาพบัตร E-Ticket ด้านล่างไว้เป็นหลักฐาน',
+        tkLabelName: 'ชื่อผู้สมัคร:',
+        tkLabelItems: 'รายการเสื้อ:',
+        tkLabelTotal: 'ยอดชำระ:',
+        tkLabelStatus: 'สถานะ:',
+        tkFooterNote: 'แสดงบัตรนี้ที่จุดลงทะเบียนหน้างานเพื่อรับเสื้อและริสต์แบนด์',
+        saveTicketBtn: '💾 บันทึกรูปบัตร E-Ticket',
+        closeTicketBtn: 'ปิด'
+      },
+      en: {
+        dateBadge: '26 - 27 DEC 2026 • BAN THI, LAMPHUN',
+        mainTitle: 'I LOVE ENDURO',
+        location: '📍 Upper in the air Paramotor Field',
+        mapLink: 'Open Google Maps',
+        tabRegister: '📝 Register / Order Shirt',
+        tabStatus: '🔍 Check Roster & E-Ticket',
+        ruleTitle: '📢 Event Entry & Registration Rules:',
+        rule1: '• <strong>Entry Only (No Shirt):</strong> Buy ticket at the gate 200 THB (Men only / Women, Kids & Seniors FREE!)',
+        rule2: '• <strong>Pre-Registration:</strong> Choose either <u>Event Pickup (Ticket + Shirt)</u> or <u>Home Delivery (Shirt Only)</u>',
+        step1Title: 'Select Order Type (Choose One)',
+        modeATitle: '🏁 Event Ticket + Official Jersey',
+        modeAPrice: '500 THB / Set',
+        modeADesc1: '• Full Event Access + Long-Sleeve Jersey I LOVE ENDURO 2026',
+        modeADesc2: '• Pickup at the event registration desk only (No shipping fee)',
+        modeBTitle: '📦 Jersey Only (Home Delivery)',
+        modeBPrice: '400 THB / Pc',
+        modeBDesc1: '• For riders who cannot attend but want the commemorative jersey',
+        modeBDesc2: '• Shipping fee 50 THB / order (Remote area +50 THB)',
+        step2Title: 'Select Shirt Size & Quantity',
+        sizeChartBtn: '📏 Size Chart',
+        kidSizeTitle: '👕 Kids Size Chart (Chest / Length)',
+        adultSizeTitle: '👕 Adult Size Chart (Chest / Length)',
+        addBtn: '+ Add to Cart',
+        emptyCart: 'Your cart is empty • Please select a size and click "+ Add to Cart" above',
+        step3Title: 'Participant / Recipient Details',
+        nameLabel: 'Full Name (or Team Name)',
+        phoneLabel: 'Phone Number (Used to search order & E-Ticket)',
+        addrLabel: 'Shipping Address (House No. / District / Province)',
+        zipLabel: 'Postal / Zip Code (5 digits)',
+        shipStd: '✓ Standard shipping fee: 50 THB',
+        shipRemote: '⚠️ Remote area shipping fee: 100 THB (50+50)',
+        step4Title: 'Payment Summary & Slip Upload',
+        sumItemLabel: 'Jersey / Package',
+        unitItem: 'items',
+        sumShipLabel: 'Shipping Fee',
+        sumGrandLabel: 'Grand Total',
+        currency: 'THB',
+        qrTitle: 'Scan PromptPay QR (Auto-filled Amount)',
+        bankName: 'Siam Commercial Bank (SCB)',
+        accNoLabel: 'Account Number',
+        copyBtn: 'Copy',
+        accName: 'Account Name: <strong>Mr. Khomsan Wutsri</strong>',
+        contactLabel: 'Coordinator Tel:',
+        slipLabel: 'Upload Transfer Slip (Proof of Payment)',
+        submitBtn: '✅ ยืนยันการลงทะเบียน / Confirm Registration',
+        submittingBtn: '⏳ Submitting & Uploading Slip...',
+        searchTitle: '🎫 Find My Order & Download E-Ticket',
+        searchDesc: 'Enter your registered phone number to check payment status, tracking number, or open E-Ticket',
+        searchBtn: 'Search',
+        rosterTitle: '📋 Registered Participants & Shirt Orders',
+        rosterDesc: 'Showing only names and shirt sizes (Phone & address hidden for privacy)',
+        refreshBtn: '🔄 Refresh',
+        thId: 'Order ID',
+        thName: 'Name',
+        thSize: 'Shirt Sizes',
+        thStatus: 'Status',
+        successAlert: '🎉 Registration Successful! Please save your E-Ticket below for event check-in.',
+        tkLabelName: 'Name:',
+        tkLabelItems: 'Items:',
+        tkLabelTotal: 'Total Paid:',
+        tkLabelStatus: 'Status:',
+        tkFooterNote: 'Present this E-Ticket at the event gate to claim your shirt & wristband',
+        saveTicketBtn: '💾 Save E-Ticket Image',
+        closeTicketBtn: 'Close'
+      }
+    };
+
     window.addEventListener('DOMContentLoaded', () => {
       renderCart();
       fetchRemoteZipcodes();
     });
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      const t = I18N[lang];
+
+      document.getElementById('lang-th').className = lang === 'th'
+        ? 'px-3 py-1 rounded-lg bg-yellow-400 text-zinc-950 transition'
+        : 'px-3 py-1 rounded-lg text-zinc-400 hover:text-white transition';
+      document.getElementById('lang-en').className = lang === 'en'
+        ? 'px-3 py-1 rounded-lg bg-yellow-400 text-zinc-950 transition'
+        : 'px-3 py-1 rounded-lg text-zinc-400 hover:text-white transition';
+
+      document.getElementById('txt-dateBadge').innerText = t.dateBadge;
+      document.getElementById('txt-mainTitle').innerText = t.mainTitle;
+      document.getElementById('txt-location').innerText = t.location;
+      document.getElementById('txt-mapLink').innerText = t.mapLink;
+      document.getElementById('tab-register').innerText = t.tabRegister;
+      document.getElementById('tab-status').innerText = t.tabStatus;
+      document.getElementById('txt-ruleTitle').innerText = t.ruleTitle;
+      document.getElementById('txt-rule1').innerHTML = t.rule1;
+      document.getElementById('txt-rule2').innerHTML = t.rule2;
+      document.getElementById('txt-step1Title').innerText = t.step1Title;
+      document.getElementById('txt-modeATitle').innerText = t.modeATitle;
+      document.getElementById('txt-modeAPrice').innerText = t.modeAPrice;
+      document.getElementById('txt-modeADesc1').innerText = t.modeADesc1;
+      document.getElementById('txt-modeADesc2').innerText = t.modeADesc2;
+      document.getElementById('txt-modeBTitle').innerText = t.modeBTitle;
+      document.getElementById('txt-modeBPrice').innerText = t.modeBPrice;
+      document.getElementById('txt-modeBDesc1').innerText = t.modeBDesc1;
+      document.getElementById('txt-modeBDesc2').innerText = t.modeBDesc2;
+      document.getElementById('txt-step2Title').innerText = t.step2Title;
+      document.getElementById('txt-sizeChartBtn').innerText = t.sizeChartBtn;
+      document.getElementById('txt-kidSizeTitle').innerText = t.kidSizeTitle;
+      document.getElementById('txt-adultSizeTitle').innerText = t.adultSizeTitle;
+      document.getElementById('txt-addBtn').innerText = t.addBtn;
+      document.getElementById('txt-step3Title').innerText = t.step3Title;
+      document.getElementById('txt-nameLabel').innerText = t.nameLabel;
+      document.getElementById('txt-phoneLabel').innerText = t.phoneLabel;
+      document.getElementById('txt-addrLabel').innerText = t.addrLabel;
+      document.getElementById('txt-zipLabel').innerText = t.zipLabel;
+      document.getElementById('txt-step4Title').innerText = t.step4Title;
+      document.getElementById('txt-sumItemLabel').innerText = t.sumItemLabel;
+      document.getElementById('txt-unitItem').innerText = t.unitItem;
+      document.getElementById('txt-sumShipLabel').innerText = t.sumShipLabel;
+      document.getElementById('txt-sumGrandLabel').innerText = t.sumGrandLabel;
+      document.querySelectorAll('.txt-currency').forEach(el => el.innerText = t.currency);
+      document.getElementById('txt-qrTitle').innerText = t.qrTitle;
+      document.getElementById('txt-bankName').innerText = t.bankName;
+      document.getElementById('txt-accNoLabel').innerText = t.accNoLabel;
+      document.getElementById('txt-copyBtn').innerText = t.copyBtn;
+      document.getElementById('txt-accName').innerHTML = t.accName;
+      document.getElementById('txt-contactLabel').innerText = t.contactLabel;
+      document.getElementById('txt-slipLabel').innerText = t.slipLabel;
+      document.getElementById('submitBtn').innerText = t.submitBtn;
+      document.getElementById('txt-searchTitle').innerText = t.searchTitle;
+      document.getElementById('txt-searchDesc').innerText = t.searchDesc;
+      document.getElementById('txt-searchBtn').innerText = t.searchBtn;
+      document.getElementById('txt-rosterTitle').innerText = t.rosterTitle;
+      document.getElementById('txt-rosterDesc').innerText = t.rosterDesc;
+      document.getElementById('txt-refreshBtn').innerText = t.refreshBtn;
+      document.getElementById('th-id').innerText = t.thId;
+      document.getElementById('th-name').innerText = t.thName;
+      document.getElementById('th-size').innerText = t.thSize;
+      document.getElementById('th-status').innerText = t.thStatus;
+      document.getElementById('registerSuccessAlert').innerText = t.successAlert;
+      document.getElementById('tkLabelName').innerText = t.tkLabelName;
+      document.getElementById('tkLabelItems').innerText = t.tkLabelItems;
+      document.getElementById('tkLabelTotal').innerText = t.tkLabelTotal;
+      document.getElementById('tkLabelStatus').innerText = t.tkLabelStatus;
+      document.getElementById('tkFooterNote').innerText = t.tkFooterNote;
+      document.getElementById('txt-saveTicketBtn').innerText = t.saveTicketBtn;
+      document.getElementById('txt-closeTicketBtn').innerText = t.closeTicketBtn;
+
+      renderCart();
+    }
 
     async function fetchRemoteZipcodes() {
       try {
@@ -474,9 +702,10 @@
     function renderCart() {
       const container = document.getElementById('cartContainer');
       const basePrice = getOrderMode() === 'PICKUP' ? 500 : 400;
+      const t = I18N[currentLang];
 
       if (cart.length === 0) {
-        container.innerHTML = `<div class="text-center py-4 text-xs text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-900/40">ตะกร้ายังว่างอยู่ • กรุณาเลือกไซส์และกดปุ่ม "+ เพิ่มลงรายการ" ด้านบน</div>`;
+        container.innerHTML = `<div class="text-center py-4 text-xs text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-900/40">${t.emptyCart}</div>`;
         recalculateTotal();
         return;
       }
@@ -488,8 +717,8 @@
         return `
           <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 px-3.5 py-2.5 rounded-xl">
             <div>
-              <span class="font-bold text-white text-sm">ไซส์ ${item.size}</span>
-              <span class="text-xs text-zinc-400 ml-2">(${unitPrice} บาท/ตัว)</span>
+              <span class="font-bold text-white text-sm">Size ${item.size}</span>
+              <span class="text-xs text-zinc-400 ml-2">(${unitPrice} ${t.currency})</span>
             </div>
             <div class="flex items-center gap-3">
               <div class="flex items-center bg-zinc-800 rounded-lg">
@@ -509,6 +738,7 @@
     function recalculateTotal() {
       const isShipping = getOrderMode() === 'SHIPPING';
       const basePrice = isShipping ? 400 : 500;
+      const t = I18N[currentLang];
       let subtotal = 0;
       let totalQty = 0;
 
@@ -526,8 +756,10 @@
         const isRemote = zip.length === 5 && remoteZipcodes.includes(zip);
         shippingFee = isRemote ? 100 : 50;
         remoteBadge.innerHTML = isRemote
-          ? `<span class="text-amber-400 font-bold">⚠️ พื้นที่ห่างไกล ค่าจัดส่ง 100 บาท (50+50)</span>`
-          : `<span class="text-emerald-400">✓ ค่าจัดส่งมาตรฐาน 50 บาท</span>`;
+          ? `<span class="text-amber-400 font-bold">${t.shipRemote}</span>`
+          : `<span class="text-emerald-400">${t.shipStd}</span>`;
+      } else if (isShipping) {
+        remoteBadge.innerHTML = `<span class="text-zinc-400">${t.shipStd}</span>`;
       }
 
       const grandTotal = subtotal + shippingFee;
@@ -541,12 +773,19 @@
       generatePromptPayQR(grandTotal);
     }
 
-    // สร้าง PromptPay QR Payload (EMVCo Standard)
+    // สร้าง PromptPay QR Payload (ใช้ QRious วาดทันที ไม่มีดีเลย์)
     function generatePromptPayQR(amount) {
       const qrBox = document.getElementById('promptpayQR');
       qrBox.innerHTML = '';
       const payload = buildPromptPayPayload(PROMPTPAY_ID, amount);
-      new QRCode(qrBox, { text: payload, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M });
+      const canvas = document.createElement('canvas');
+      new QRious({
+        element: canvas,
+        value: payload,
+        size: 150,
+        level: 'M'
+      });
+      qrBox.appendChild(canvas);
     }
 
     function buildPromptPayPayload(mobile, amount) {
@@ -576,7 +815,9 @@
 
     function copyAcc() {
       navigator.clipboard.writeText('4034877025');
-      alert('คัดลอกเลขบัญชี 4034877025 (SCB นายคมสัน วุฒศรี) เรียบร้อยแล้ว');
+      alert(currentLang === 'th'
+        ? 'คัดลอกเลขบัญชี 4034877025 (SCB นายคมสัน วุฒศรี) เรียบร้อยแล้ว'
+        : 'Copied SCB Account: 4034877025 (Mr. Khomsan Wutsri)');
     }
 
     // บีบอัดรูปสลิปก่อนอัปโหลด
@@ -611,7 +852,8 @@
     }
 
     async function submitOrder() {
-      if (cart.length === 0) return alert('กรุณาเลือกไซส์เสื้อและกดปุ่ม "+ เพิ่มลงรายการ" อย่างน้อย 1 รายการ');
+      const t = I18N[currentLang];
+      if (cart.length === 0) return alert(currentLang === 'th' ? 'กรุณาเลือกไซส์เสื้อและกดปุ่ม "+ เพิ่มลงรายการ" อย่างน้อย 1 รายการ' : 'Please select at least 1 shirt size.');
 
       const orderType = getOrderMode();
       const customerName = document.getElementById('customerName').value.trim();
@@ -619,17 +861,17 @@
       const shippingAddress = document.getElementById('shippingAddress').value.trim();
       const zipcode = document.getElementById('zipcodeInput').value.trim();
 
-      if (!customerName) return alert('กรุณากรอกชื่อ - นามสกุล');
-      if (phone.length < 9) return alert('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง');
+      if (!customerName) return alert(currentLang === 'th' ? 'กรุณากรอกชื่อ - นามสกุล' : 'Please enter your name.');
+      if (phone.length < 9) return alert(currentLang === 'th' ? 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง' : 'Please enter a valid phone number.');
       if (orderType === 'SHIPPING') {
-        if (!shippingAddress) return alert('กรุณากรอกที่อยู่สำหรับจัดส่งพัสดุ');
-        if (zipcode.length !== 5) return alert('กรุณากรอกรหัสไปรษณีย์ 5 หลัก');
+        if (!shippingAddress) return alert(currentLang === 'th' ? 'กรุณากรอกที่อยู่สำหรับจัดส่งพัสดุ' : 'Please enter shipping address.');
+        if (zipcode.length !== 5) return alert(currentLang === 'th' ? 'กรุณากรอกรหัสไปรษณีย์ 5 หลัก' : 'Please enter 5-digit postal code.');
       }
-      if (!compressedSlipBase64) return alert('กรุณาแนบสลิปหลักฐานการโอนเงิน');
+      if (!compressedSlipBase64) return alert(currentLang === 'th' ? 'กรุณาแนบสลิปหลักฐานการโอนเงิน' : 'Please upload payment transfer slip.');
 
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
-      btn.innerText = '⏳ กำลังบันทึกข้อมูลและอัปโหลดสลิป...';
+      btn.innerText = t.submittingBtn;
 
       try {
         const res = await fetch(API_URL, {
@@ -650,87 +892,72 @@
 
         const result = await res.json();
         if (result.status === 'success') {
-          showTicketModal(result.order);
-          // รีเซ็ตฟอร์มให้ว่าง
+          // ส่ง true เพื่อเปิดแถบแจ้งเตือน "ลงทะเบียนสำเร็จแล้ว" ด้านบนบัตร E-Ticket
+          showTicketModal(result.order, true);
+
+          // รีเซ็ตฟอร์ม
           cart = [];
           renderCart();
           document.getElementById('slipFile').value = '';
           document.getElementById('slipPreviewBox').classList.add('hidden');
           compressedSlipBase64 = '';
         } else {
-          alert('เกิดข้อผิดพลาด: ' + result.message);
+          alert('Error: ' + result.message);
         }
       } catch (err) {
-        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง');
+        alert(currentLang === 'th' ? 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง' : 'Connection failed. Please try again.');
         console.error(err);
       } finally {
         btn.disabled = false;
-        btn.innerText = '✅ ยืนยันการสมัครและส่งสลิป';
+        btn.innerText = I18N[currentLang].submitBtn;
       }
     }
 
-    // แสดง E-Ticket (แปลง Canvas QR เป็นรูปภาพ PNG จริง เพื่อให้ html2canvas เซฟติด 100%)
-    function showTicketModal(order) {
+    // แสดง E-Ticket (isNewSuccess = true จะแสดงแถบแจ้งเตือนลงทะเบียนสำเร็จด้านบน)
+    function showTicketModal(order, isNewSuccess = false) {
+      const alertBox = document.getElementById('registerSuccessAlert');
+      alertBox.classList.toggle('hidden', !isNewSuccess);
+
       document.getElementById('tkOrderId').innerText = order.orderId;
       document.getElementById('tkType').innerText = order.orderType;
       document.getElementById('tkName').innerText = order.customerName;
       document.getElementById('tkItems').innerText = order.itemsSummary;
-      document.getElementById('tkTotal').innerText = Number(order.grandTotal).toLocaleString() + ' บาท';
+      document.getElementById('tkTotal').innerText = Number(order.grandTotal).toLocaleString() + ' ' + I18N[currentLang].currency;
       document.getElementById('tkStatus').innerText = order.status;
 
       const qrContainer = document.getElementById('ticketQR');
       qrContainer.innerHTML = '';
 
-      // สร้าง QR บน element ชั่วคราว แล้วดึง DataURL มาใส่เป็น <img>
-      const tempDiv = document.createElement('div');
-      new QRCode(tempDiv, {
-        text: order.orderId,
-        width: 130,
-        height: 130,
-        correctLevel: QRCode.CorrectLevel.H
+      const qr = new QRious({
+        value: order.orderId,
+        size: 140,
+        level: 'H',
+        background: '#ffffff',
+        foreground: '#000000'
       });
 
-      setTimeout(() => {
-        const canvas = tempDiv.querySelector('canvas');
-        const imgTag = document.createElement('img');
-        imgTag.width = 130;
-        imgTag.height = 130;
-        imgTag.style.display = 'block';
-        if (canvas) {
-          imgTag.src = canvas.toDataURL('image/png');
-        } else {
-          const fallbackImg = tempDiv.querySelector('img');
-          if (fallbackImg) imgTag.src = fallbackImg.src;
-        }
-        qrContainer.appendChild(imgTag);
-      }, 50);
+      const imgTag = document.createElement('img');
+      imgTag.src = qr.toDataURL('image/png');
+      imgTag.width = 140;
+      imgTag.height = 140;
+      imgTag.style.display = 'block';
+      qrContainer.appendChild(imgTag);
 
       document.getElementById('ticketModal').classList.remove('hidden');
     }
 
     function closeTicketModal() {
       document.getElementById('ticketModal').classList.add('hidden');
+      document.getElementById('registerSuccessAlert').classList.add('hidden');
     }
 
     function downloadTicketImage() {
       const card = document.getElementById('ticketCard');
       const orderId = document.getElementById('tkOrderId').innerText;
 
-      // เช็กอีกชั้นว่าใน ticketQR เป็น <img> สมบูรณ์แล้วก่อนแคปเจอร์
-      const qrCanvas = document.querySelector('#ticketQR canvas');
-      if (qrCanvas) {
-        const img = document.createElement('img');
-        img.src = qrCanvas.toDataURL('image/png');
-        img.width = 130;
-        img.height = 130;
-        document.getElementById('ticketQR').innerHTML = '';
-        document.getElementById('ticketQR').appendChild(img);
-      }
-
       html2canvas(card, {
         scale: 2,
-        backgroundColor: '#09090b',
-        useCORS: true
+        backgroundColor: '#09090b'
       }).then(canvas => {
         const link = document.createElement('a');
         link.download = `ETicket_${orderId}.png`;
@@ -742,10 +969,10 @@
     // ค้นหาด้วยเบอร์โทร
     async function searchMyOrder() {
       const phone = document.getElementById('searchPhoneInput').value.replace(/\D/g, '');
-      if (phone.length < 9) return alert('กรุณากรอกเบอร์โทรศัพท์ 9-10 หลัก');
+      if (phone.length < 9) return alert(currentLang === 'th' ? 'กรุณากรอกเบอร์โทรศัพท์ 9-10 หลัก' : 'Please enter 9-10 digit phone number.');
 
       const box = document.getElementById('mySearchResults');
-      box.innerHTML = `<p class="text-xs text-zinc-400">กำลังค้นหาข้อมูล...</p>`;
+      box.innerHTML = `<p class="text-xs text-zinc-400">Searching...</p>`;
 
       try {
         const res = await fetch(`${API_URL}?action=searchByPhone&phone=${phone}`);
@@ -753,7 +980,7 @@
         const list = json.data || [];
 
         if (list.length === 0) {
-          box.innerHTML = `<div class="p-4 bg-zinc-900 rounded-xl text-center text-xs text-rose-400">ไม่พบข้อมูลการสมัครของเบอร์โทรนี้</div>`;
+          box.innerHTML = `<div class="p-4 bg-zinc-900 rounded-xl text-center text-xs text-rose-400">${currentLang === 'th' ? 'ไม่พบข้อมูลการสมัครของเบอร์โทรนี้' : 'No order found for this phone number'}</div>`;
           return;
         }
 
@@ -764,23 +991,23 @@
               <span class="px-2 py-0.5 rounded font-bold ${o.status === 'อนุมัติแล้ว' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${o.status}</span>
             </div>
             <p class="text-white font-semibold">${o.customerName} <span class="text-zinc-400 font-normal">(${o.orderType})</span></p>
-            <p class="text-zinc-300">รายการ: <strong>${o.itemsSummary}</strong> (ยอด ${Number(o.grandTotal).toLocaleString()}.-)</p>
-            ${o.trackingNo ? `<p class="text-emerald-400 font-bold">🚚 เลขพัสดุ: ${o.trackingNo}</p>` : ''}
-            ${o.adminNote ? `<p class="text-rose-400">หมายเหตุ: ${o.adminNote}</p>` : ''}
-            <button type="button" onclick='showTicketModal(${JSON.stringify(o)})' class="w-full mt-2 bg-zinc-800 hover:bg-zinc-700 text-yellow-400 py-2 rounded-lg font-bold border border-zinc-700">
-              🎫 เปิดดู / เซฟบัตร E-Ticket
+            <p class="text-zinc-300">Items: <strong>${o.itemsSummary}</strong> (${Number(o.grandTotal).toLocaleString()}.-)</p>
+            ${o.trackingNo ? `<p class="text-emerald-400 font-bold">🚚 Tracking No: ${o.trackingNo}</p>` : ''}
+            ${o.adminNote ? `<p class="text-rose-400">Note: ${o.adminNote}</p>` : ''}
+            <button type="button" onclick='showTicketModal(${JSON.stringify(o)}, false)' class="w-full mt-2 bg-zinc-800 hover:bg-zinc-700 text-yellow-400 py-2 rounded-lg font-bold border border-zinc-700">
+              🎫 ${currentLang === 'th' ? 'เปิดดู / เซฟบัตร E-Ticket' : 'View / Save E-Ticket'}
             </button>
           </div>
         `).join('');
       } catch (e) {
-        box.innerHTML = `<p class="text-xs text-rose-400">เกิดข้อผิดพลาดในการค้นหา</p>`;
+        box.innerHTML = `<p class="text-xs text-rose-400">Search error</p>`;
       }
     }
 
     // โหลดรายชื่อสาธารณะ
     async function loadPublicList() {
       const tbody = document.getElementById('publicTableBody');
-      tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-zinc-500">กำลังโหลดข้อมูล...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-zinc-500">Loading...</td></tr>`;
 
       try {
         const res = await fetch(`${API_URL}?action=getPublicList`);
@@ -788,7 +1015,7 @@
         const list = json.data || [];
 
         if (list.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-zinc-500">ยังไม่มีผู้ลงทะเบียน</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-zinc-500">${currentLang === 'th' ? 'ยังไม่มีผู้ลงทะเบียน' : 'No registrations yet'}</td></tr>`;
           return;
         }
 
@@ -805,7 +1032,7 @@
           </tr>
         `).join('');
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-rose-400">โหลดรายชื่อไม่สำเร็จ</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-rose-400">Failed to load data</td></tr>`;
       }
     }
   </script>
