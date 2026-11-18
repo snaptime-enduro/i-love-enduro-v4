@@ -55,7 +55,7 @@
   <nav class="sticky top-0 z-30 bg-zinc-900/95 backdrop-blur border-b border-zinc-800">
     <div class="max-w-3xl mx-auto flex">
       <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-3.5 text-center font-bold text-sm md:text-base border-b-2 border-yellow-400 text-yellow-400">
-        📝 สมัครเข้างาน / สั่งเสื้อ
+        📝 ลงทะเบียน/สั่งเสื้อ
       </button>
       <button onclick="switchTab('status')" id="tab-status" class="flex-1 py-3.5 text-center font-bold text-sm md:text-base border-b-2 border-transparent text-zinc-400 hover:text-white">
         🔍 ตรวจสอบรายชื่อ & E-Ticket
@@ -345,7 +345,7 @@
           <h3 class="text-xl font-extrabold text-white mt-1">I LOVE ENDURO <span class="text-yellow-400">#4</span></h3>
           <p class="text-[11px] text-zinc-400">26-27 ธ.ค. 2569 • บ้านธิ จ.ลำพูน</p>
 
-          <div class="my-4 bg-white p-3 rounded-xl inline-block">
+          <div class="my-4 bg-white p-3 rounded-xl inline-flex items-center justify-center min-w-[154px] min-h-[154px]">
             <div id="ticketQR"></div>
           </div>
 
@@ -396,7 +396,8 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbxX5YpKcQoXCBpDMiaOELwySO4zDr0UCDReh7fpsdUSdSGnujn-A_vcjPhvWZy3kmlWaA/exec';
     const PROMPTPAY_ID = '0895630486';
 
-    let cart = [{ size: 'L', qty: 1 }];
+    // เคลียร์ตะกร้าให้ว่างไว้ก่อนตามที่ต้องการ
+    let cart = [];
     let remoteZipcodes = [];
     let compressedSlipBase64 = '';
 
@@ -475,7 +476,7 @@
       const basePrice = getOrderMode() === 'PICKUP' ? 500 : 400;
 
       if (cart.length === 0) {
-        container.innerHTML = `<div class="text-center py-4 text-xs text-zinc-500 border border-dashed border-zinc-700 rounded-xl">ยังไม่มีรายการเสื้อ กรุณาเลือกไซส์ด้านบน</div>`;
+        container.innerHTML = `<div class="text-center py-4 text-xs text-zinc-400 border border-dashed border-zinc-700 rounded-xl bg-zinc-900/40">ตะกร้ายังว่างอยู่ • กรุณาเลือกไซส์และกดปุ่ม "+ เพิ่มลงรายการ" ด้านบน</div>`;
         recalculateTotal();
         return;
       }
@@ -610,7 +611,7 @@
     }
 
     async function submitOrder() {
-      if (cart.length === 0) return alert('กรุณาเลือกไซส์เสื้ออย่างน้อย 1 รายการ');
+      if (cart.length === 0) return alert('กรุณาเลือกไซส์เสื้อและกดปุ่ม "+ เพิ่มลงรายการ" อย่างน้อย 1 รายการ');
 
       const orderType = getOrderMode();
       const customerName = document.getElementById('customerName').value.trim();
@@ -650,8 +651,8 @@
         const result = await res.json();
         if (result.status === 'success') {
           showTicketModal(result.order);
-          // รีเซ็ตฟอร์ม
-          cart = [{ size: 'L', qty: 1 }];
+          // รีเซ็ตฟอร์มให้ว่าง
+          cart = [];
           renderCart();
           document.getElementById('slipFile').value = '';
           document.getElementById('slipPreviewBox').classList.add('hidden');
@@ -668,7 +669,7 @@
       }
     }
 
-    // แสดง E-Ticket
+    // แสดง E-Ticket (แปลง Canvas QR เป็นรูปภาพ PNG จริง เพื่อให้ html2canvas เซฟติด 100%)
     function showTicketModal(order) {
       document.getElementById('tkOrderId').innerText = order.orderId;
       document.getElementById('tkType').innerText = order.orderType;
@@ -679,7 +680,30 @@
 
       const qrContainer = document.getElementById('ticketQR');
       qrContainer.innerHTML = '';
-      new QRCode(qrContainer, { text: order.orderId, width: 130, height: 130 });
+
+      // สร้าง QR บน element ชั่วคราว แล้วดึง DataURL มาใส่เป็น <img>
+      const tempDiv = document.createElement('div');
+      new QRCode(tempDiv, {
+        text: order.orderId,
+        width: 130,
+        height: 130,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const canvas = tempDiv.querySelector('canvas');
+        const imgTag = document.createElement('img');
+        imgTag.width = 130;
+        imgTag.height = 130;
+        imgTag.style.display = 'block';
+        if (canvas) {
+          imgTag.src = canvas.toDataURL('image/png');
+        } else {
+          const fallbackImg = tempDiv.querySelector('img');
+          if (fallbackImg) imgTag.src = fallbackImg.src;
+        }
+        qrContainer.appendChild(imgTag);
+      }, 50);
 
       document.getElementById('ticketModal').classList.remove('hidden');
     }
@@ -691,7 +715,23 @@
     function downloadTicketImage() {
       const card = document.getElementById('ticketCard');
       const orderId = document.getElementById('tkOrderId').innerText;
-      html2canvas(card, { scale: 2, backgroundColor: '#09090b' }).then(canvas => {
+
+      // เช็กอีกชั้นว่าใน ticketQR เป็น <img> สมบูรณ์แล้วก่อนแคปเจอร์
+      const qrCanvas = document.querySelector('#ticketQR canvas');
+      if (qrCanvas) {
+        const img = document.createElement('img');
+        img.src = qrCanvas.toDataURL('image/png');
+        img.width = 130;
+        img.height = 130;
+        document.getElementById('ticketQR').innerHTML = '';
+        document.getElementById('ticketQR').appendChild(img);
+      }
+
+      html2canvas(card, {
+        scale: 2,
+        backgroundColor: '#09090b',
+        useCORS: true
+      }).then(canvas => {
         const link = document.createElement('a');
         link.download = `ETicket_${orderId}.png`;
         link.href = canvas.toDataURL('image/png');
