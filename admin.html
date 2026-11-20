@@ -6,7 +6,6 @@
   <title>ADMIN | I LOVE ENDURO #4 Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- HTML5-QRCode สำหรับสแกน E-Ticket หน้างาน -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     body { font-family: 'Kanit', sans-serif; background-color: #09090b; color: #f4f4f5; }
@@ -44,7 +43,7 @@
       <div class="max-w-5xl mx-auto flex justify-between items-center">
         <div>
           <h1 class="text-lg font-extrabold text-white">🏁 ADMIN • <span class="text-yellow-400">I LOVE ENDURO #4</span></h1>
-          <p class="text-[11px] text-zinc-400">ระบบตรวจสลิป จัดส่งพัสดุ และสแกนแจกเสื้อหน้างาน</p>
+          <p class="text-[11px] text-zinc-400">ระบบตรวจสลิป จัดส่งพัสดุ และสแกนรับบัตร/เสื้อหน้างาน</p>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="fetchAdminOrders()" class="bg-zinc-800 hover:bg-zinc-700 text-yellow-400 text-xs font-bold px-3 py-2 rounded-lg border border-zinc-700">
@@ -69,8 +68,11 @@
           <p class="text-2xl font-extrabold text-amber-400 mt-0.5" id="statPending">0</p>
         </div>
         <div class="glass-card p-3.5 rounded-xl border-emerald-500/40">
-          <p class="text-xs text-emerald-400">✅ อนุมัติแล้ว (ตัวเสื้อ)</p>
-          <p class="text-2xl font-extrabold text-emerald-400 mt-0.5"><span id="statApproved">0</span> <span class="text-xs font-normal text-zinc-400">(<span id="statShirts">0</span> ตัว)</span></p>
+          <p class="text-xs text-emerald-400">✅ อนุมัติแล้ว (เสื้อ / บัตร)</p>
+          <p class="text-xl font-extrabold text-emerald-400 mt-0.5">
+            <span id="statShirts">0</span> <span class="text-xs font-normal text-zinc-400">ตัว</span> / 
+            <span id="statTicketsOnly">0</span> <span class="text-xs font-normal text-zinc-400">บัตร</span>
+          </p>
         </div>
         <div class="glass-card p-3.5 rounded-xl">
           <p class="text-xs text-zinc-400">💰 ยอดโอนอนุมัติแล้ว</p>
@@ -86,7 +88,7 @@
           📋 รายการสั่งซื้อ & ตรวจสลิป
         </button>
         <button onclick="switchAdminTab('scanner')" id="atab-scanner" class="flex-1 py-2.5 rounded-lg text-xs md:text-sm font-bold text-zinc-400 hover:text-white">
-          📷 สแกน QR รับเสื้อหน้างาน
+          📷 สแกน QR รับบัตร/เสื้อหน้างาน
         </button>
       </div>
     </nav>
@@ -102,8 +104,9 @@
           <option value="ALL">สถานะทั้งหมด</option>
           <option value="รอตรวจสอบ" selected>⏳ เฉพาะรอตรวจสอบ</option>
           <option value="อนุมัติแล้ว">✅ อนุมัติแล้ว</option>
-          <option value="SHIPPING">📦 เฉพาะจัดส่งพัสดุ</option>
-          <option value="PICKUP">🏁 เฉพาะรับหน้างาน</option>
+          <option value="PICKUP">🏁 บัตร+เสื้อ (รับหน้างาน)</option>
+          <option value="SHIPPING">📦 เสื้ออย่างเดียว (จัดส่งพัสดุ)</option>
+          <option value="TICKET_ONLY">🎟️ บัตรเข้างานอย่างเดียว (200.-)</option>
           <option value="ยกเลิก">❌ ยกเลิก</option>
         </select>
       </div>
@@ -231,20 +234,23 @@
     }
 
     function updateStats() {
-      let pending = 0, approved = 0, shirts = 0, revenue = 0;
+      let pending = 0, shirts = 0, ticketsOnly = 0, revenue = 0;
       allOrders.forEach(o => {
         if (o.status === 'รอตรวจสอบ') pending++;
         if (o.status === 'อนุมัติแล้ว') {
-          approved++;
-          shirts += Number(o.totalQty || 0);
+          if (o.orderType.includes('บัตรเข้างานอย่างเดียว')) {
+            ticketsOnly += Number(o.totalQty || 0);
+          } else {
+            shirts += Number(o.totalQty || 0);
+          }
           revenue += Number(o.grandTotal || 0);
         }
       });
 
       document.getElementById('statTotal').innerText = allOrders.length;
       document.getElementById('statPending').innerText = pending;
-      document.getElementById('statApproved').innerText = approved;
       document.getElementById('statShirts').innerText = shirts;
+      document.getElementById('statTicketsOnly').innerText = ticketsOnly;
       document.getElementById('statRevenue').innerText = revenue.toLocaleString();
     }
 
@@ -276,8 +282,9 @@
 
         if (!matchSearch) return false;
         if (filter === 'ALL') return true;
-        if (filter === 'SHIPPING') return o.orderType === 'จัดส่งพัสดุ';
-        if (filter === 'PICKUP') return o.orderType === 'รับหน้างาน';
+        if (filter === 'SHIPPING') return o.orderType.includes('จัดส่งพัสดุ');
+        if (filter === 'PICKUP') return o.orderType.includes('รับหน้างาน');
+        if (filter === 'TICKET_ONLY') return o.orderType.includes('บัตรเข้างานอย่างเดียว');
         return o.status === filter;
       });
 
@@ -287,14 +294,20 @@
       }
 
       container.innerHTML = filtered.map(o => {
-        const isShipping = o.orderType === 'จัดส่งพัสดุ';
+        const isShipping = o.orderType.includes('จัดส่งพัสดุ');
+        const isTicketOnly = o.orderType.includes('บัตรเข้างานอย่างเดียว');
+        const badgeColor = isShipping
+          ? 'bg-blue-500/20 text-blue-300'
+          : isTicketOnly
+            ? 'bg-emerald-500/20 text-emerald-300'
+            : 'bg-purple-500/20 text-purple-300';
+
         const statusBadge = o.status === 'อนุมัติแล้ว'
           ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
           : o.status === 'ยกเลิก'
             ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
             : 'bg-amber-500/20 text-amber-400 border-amber-500/30';
 
-        // แปลง Google Drive URL ให้โหลดเป็นรูปภาพได้เสถียร
         const fileIdMatch = (o.slipUrl || '').match(/id=([a-zA-Z0-9_-]+)/);
         const directImgUrl = fileIdMatch ? `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}` : o.slipUrl;
 
@@ -302,9 +315,9 @@
           <div class="glass-card rounded-2xl p-4 space-y-3">
             <div class="flex flex-wrap justify-between items-start gap-2">
               <div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <span class="font-mono font-extrabold text-yellow-400 text-base">${o.orderId}</span>
-                  <span class="text-[11px] px-2 py-0.5 rounded font-bold ${isShipping ? 'bg-blue-500/20 text-blue-300' : 'bg-purple-500/20 text-purple-300'}">
+                  <span class="text-[11px] px-2 py-0.5 rounded font-bold ${badgeColor}">
                     ${o.orderType}
                   </span>
                   <span class="text-[11px] px-2 py-0.5 rounded border font-bold ${statusBadge}">${o.status}</span>
@@ -322,7 +335,7 @@
 
             <!-- Items & Address -->
             <div class="bg-zinc-900/90 p-3 rounded-xl text-xs space-y-1 border border-zinc-800">
-              <p class="text-zinc-200">👕 รายการ: <strong class="text-yellow-400">${o.itemsSummary}</strong> (รวม ${o.totalQty} ตัว)</p>
+              <p class="text-zinc-200">📋 รายการ: <strong class="text-yellow-400">${o.itemsSummary}</strong></p>
               ${isShipping ? `<p class="text-zinc-300">📍 ที่อยู่จัดส่ง: ${o.shippingAddress} <strong>${o.zipcode}</strong></p>` : `<p class="text-zinc-400">🏁 สถานะรับหน้างาน: <strong class="text-white">${o.pickupStatus}</strong></p>`}
               ${o.adminNote ? `<p class="text-rose-400">📝 หมายเหตุ: ${o.adminNote}</p>` : ''}
             </div>
@@ -489,7 +502,7 @@
             <p class="text-white font-bold text-base">${found.customerName} (${found.phone})</p>
             <p class="text-zinc-300">ประเภท: <strong>${found.orderType}</strong></p>
             <div class="bg-zinc-900 p-3 rounded-xl border border-zinc-700 my-2">
-              <p class="text-xs text-zinc-400">รายการเสื้อที่ต้องจ่ายให้:</p>
+              <p class="text-xs text-zinc-400">รายการที่ต้องจ่ายให้หน้างาน:</p>
               <p class="text-lg font-extrabold text-yellow-400">${found.itemsSummary}</p>
             </div>
             <p class="text-xs">สถานะการรับของ: <strong class="${isPicked ? 'text-rose-400' : 'text-emerald-400'}">${found.pickupStatus}</strong></p>
@@ -497,15 +510,15 @@
 
           ${!isPicked && isPaid ? `
             <button onclick="confirmPickup('${found.orderId}')" class="w-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-extrabold py-3.5 rounded-xl text-sm">
-              ✅ ยืนยันการรับเสื้อและริสต์แบนด์หน้างาน
+              ✅ ยืนยันการรับบัตร/เสื้อและริสต์แบนด์หน้างาน
             </button>
           ` : isPicked ? `
             <div class="p-3 bg-rose-950/70 border border-rose-700 rounded-xl text-center text-xs text-rose-300 font-bold">
-              ⚠️ บิลนี้กดรับเสื้อไปแล้ว ห้ามจ่ายซ้ำ!
+              ⚠️ บิลนี้กดรับของหน้างานไปแล้ว ห้ามจ่ายซ้ำ!
             </div>
           ` : `
             <div class="p-3 bg-amber-950/70 border border-amber-700 rounded-xl text-center text-xs text-amber-300 font-bold">
-              ⚠️ บิลนี้ยังไม่ผ่านการอนุมัติยอดโอน กรุณาตรวจสอบสลิปก่อนจ่ายเสื้อ
+              ⚠️ บิลนี้ยังไม่ผ่านการอนุมัติยอดโอน กรุณาตรวจสอบสลิปก่อนจ่ายของ
             </div>
           `}
         </div>
@@ -513,7 +526,7 @@
     }
 
     async function confirmPickup(orderId) {
-      if (!confirm(`ยืนยันจ่ายเสื้อและริสต์แบนด์ให้บิล ${orderId} เรียบร้อยแล้วใช่หรือไม่?`)) return;
+      if (!confirm(`ยืนยันจ่ายบัตร/เสื้อและริสต์แบนด์ให้บิล ${orderId} เรียบร้อยแล้วใช่หรือไม่?`)) return;
 
       try {
         const res = await fetch(API_URL, {
